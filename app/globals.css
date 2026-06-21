@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+html,
+body {
+  background-color: #f2e9e1;
+  color: #5e4733;
+  font-family: "Montserrat", sans-serif;
+}
+
+.container-page {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #846348;
+  color: #f2e9e1;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+.btn-primary:hover {
+  background-color: #5e4733;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #846348;
+  color: #846348;
+  padding: 0.7rem 1.7rem;
+  border-radius: 9999px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-outline:hover {
+  background-color: #846348;
+  color: #f2e9e1;
+}
+
+.btn-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(242, 233, 225, 0.75);
+  color: #f2e9e1;
+  padding: 0.7rem 1.7rem;
+  border-radius: 9999px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-light:hover {
+  background-color: #f2e9e1;
+  color: #5e4733;
+}
+
+.input-field {
+  width: 100%;
+  border: 1px solid #c39f71;
+  background-color: #ffffff;
+  padding: 0.7rem 1rem;
+  border-radius: 0.5rem;
+  outline: none;
+  font-size: 0.9rem;
+}
+.input-field:focus {
+  border-color: #846348;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+.animate-marquee {
+  animation: marquee 12s linear infinite;
+}
