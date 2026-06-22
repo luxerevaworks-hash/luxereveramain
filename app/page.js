@@ -126,16 +126,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container-page py-12">
-        <h2 className="text-center uppercase tracking-widest2 text-brown-dark text-xl mb-8">
+      <section className="container-page py-14">
+        <h2 className="text-center uppercase tracking-widest2 text-brown-dark text-xl mb-10">
           Shop by Category
         </h2>
-        <div className="flex justify-center gap-3 sm:gap-8">
+        <div className="flex justify-center gap-4 sm:gap-8">
           {CATEGORIES.map((cat) => (
             <Link
               key={cat.slug}
               href={`/products?category=${cat.slug}`}
-              className="flex flex-col items-center gap-2 sm:gap-3 group w-16 sm:w-32 md:w-40"
+              className="flex flex-col items-center gap-2.5 sm:gap-3 group w-16 sm:w-32 md:w-40"
             >
               <span className="relative block w-16 h-16 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-cream border border-gold/30 group-hover:border-gold transition-colors">
                 {categoryImages[cat.slug] ? (
@@ -151,7 +151,7 @@ export default function HomePage() {
                   </span>
                 )}
               </span>
-              <span className="text-brown-dark uppercase tracking-widest2 text-[10px] sm:text-xs group-hover:text-rosewood transition-colors">
+              <span className="text-brown-dark uppercase tracking-wide sm:tracking-widest2 text-[10px] sm:text-xs group-hover:text-rosewood transition-colors">
                 {cat.name}
               </span>
             </Link>
