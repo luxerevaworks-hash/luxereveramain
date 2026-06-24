@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
 import { sampleProducts } from "@/lib/sampleProducts";
-import Logo from "@/components/Logo";
 
 const CATEGORIES = [
   { name: "Necklaces", slug: "necklaces" },
@@ -16,6 +14,9 @@ const CATEGORIES = [
   { name: "Rings", slug: "rings" },
 ];
 
+const HERO_IMAGE_WEBP = "/images/hero-photo.webp";
+const HERO_IMAGE_JPG = "/images/hero-photo.jpg";
+
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
   const [categoryImages, setCategoryImages] = useState({});
@@ -23,17 +24,20 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadBanner() {
+    async function loadStoreSettings() {
       try {
         const snap = await getDoc(doc(db, "settings", "store"));
-        if (snap.exists() && snap.data().bannerImage) {
-          setBanner({ image: snap.data().bannerImage, link: snap.data().bannerLink || "" });
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.bannerImage) {
+            setBanner({ image: data.bannerImage, link: data.bannerLink || "" });
+          }
         }
       } catch (err) {
         console.error(err);
       }
     }
-    loadBanner();
+    loadStoreSettings();
   }, []);
 
   useEffect(() => {
@@ -85,43 +89,27 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="bg-white">
-        <div className="container-page py-10 md:py-14">
-          <div className="relative overflow-hidden rounded-lg bg-brown-dark text-cream min-h-[430px] flex items-center">
-            <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_20%_20%,#C39F71_0,transparent_34%),radial-gradient(circle_at_80%_30%,#A66D5E_0,transparent_30%)]" />
-            <div className="relative z-10 grid md:grid-cols-[1fr_360px] gap-8 items-center w-full p-8 md:p-14">
-              <div>
-                <Logo className="mb-6 w-52 md:w-72 h-auto" onDark />
-                <p className="text-xs uppercase tracking-widest2 text-gold mb-4">
-                  Premium Jewellery
-                </p>
-                <h1 className="text-4xl md:text-6xl font-light uppercase leading-tight">
-                  Elegance, Redefined
-                </h1>
-                <p className="mt-5 text-cream/80 max-w-xl leading-relaxed">
-                  Discover trend-inspired necklaces, earrings, bracelets and more —
-                  crafted for comfort and long-lasting shine at an affordable price.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href="/products" className="btn-primary">
-                    Shop All Products
-                  </Link>
-                  <Link href="/about-us" className="btn-light">
-                    About Us
-                  </Link>
-                </div>
-              </div>
-              <div className="bg-cream/95 text-brown-dark rounded-lg p-6 border border-gold/40">
-                <p className="text-xs uppercase tracking-widest2 text-rosewood mb-3">
-                  New Collection
-                </p>
-                <h2 className="text-2xl font-light">Gifting Essentials</h2>
-                <p className="text-sm text-brown/75 mt-3 leading-relaxed">
-                  From delicate necklaces to sparkling earrings — find the
-                  perfect jewellery gift for every occasion.
-                </p>
-              </div>
-            </div>
+      <section className="bg-cream">
+        <div className="container-page py-14 md:py-20 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+          <div className="text-center md:text-left">
+            <h1 className="text-4xl md:text-6xl font-light text-brown-dark leading-tight">
+              <span className="text-rosewood">♡</span> Loved By
+              <br />
+              1K+ Customers
+            </h1>
+            <Link href="/products" className="btn-primary inline-block mt-8">
+              Explore Now
+            </Link>
+          </div>
+          <div className="h-[420px] w-full max-w-sm mx-auto md:h-[560px] md:max-w-none rounded-2xl overflow-hidden bg-cream border border-gold/20">
+            <picture>
+              <source srcSet={HERO_IMAGE_WEBP} type="image/webp" />
+              <img
+                src={HERO_IMAGE_JPG}
+                alt="Luxereva jewelry"
+                className="block h-full w-full object-cover object-center"
+              />
+            </picture>
           </div>
         </div>
       </section>

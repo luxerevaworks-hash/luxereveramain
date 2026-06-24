@@ -16,6 +16,7 @@ export default function AdminSettingsPage() {
     shippingFee: 0,
     freeShippingAt: 0,
     announcement: "",
+    heroImage: "",
     bannerImage: "",
     bannerLink: "",
   });
@@ -53,6 +54,26 @@ export default function AdminSettingsPage() {
     } catch (err) {
       console.error(err);
       toast.error("Banner upload failed");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleHeroUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const path = `products/hero/${nanoid()}-${file.name}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setForm((prev) => ({ ...prev, heroImage: url }));
+      toast.success("Hero image uploaded");
+    } catch (err) {
+      console.error(err);
+      toast.error("Hero image upload failed");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -116,6 +137,19 @@ export default function AdminSettingsPage() {
           <div>
             <label className="text-xs uppercase tracking-widest2 text-brown-dark">Announcement</label>
             <textarea name="announcement" value={form.announcement} onChange={updateField} rows={4} className="input-field mt-1" />
+          </div>
+
+          <div className="border-t border-gold/30 pt-4">
+            <label className="text-xs uppercase tracking-widest2 text-brown-dark">
+              Homepage Hero Background Photo
+            </label>
+            <input type="file" accept="image/*" onChange={handleHeroUpload} className="mt-2 block text-sm" />
+            {uploading && <p className="text-xs text-brown/60 mt-1">Uploading...</p>}
+            {form.heroImage && (
+              <div className="relative mt-3 aspect-[2/1] max-w-md rounded-lg overflow-hidden border border-gold/30 bg-cream">
+                <img src={form.heroImage} alt="Hero background" className="w-full h-full object-cover" />
+              </div>
+            )}
           </div>
 
           <div className="border-t border-gold/30 pt-4">

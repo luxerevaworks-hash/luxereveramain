@@ -119,6 +119,11 @@ export default function AdminOrdersPage() {
                         </li>
                       ))}
                     </ul>
+                    {order.giftWrap && (
+                      <p className="mt-2 inline-block text-xs uppercase tracking-widest2 bg-rosewood/10 text-rosewood rounded-full px-3 py-1">
+                        🎁 Gift Wrap Requested
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -4,22 +4,44 @@ import PageIntro from "@/components/PageIntro";
 export default function AboutUsPage() {
   return (
     <div>
-      <PageIntro eyebrow="Our story" title="About Luxereva">
-        Luxereva curates premium beauty, fragrance, and lifestyle essentials for
-        refined everyday rituals.
+      <PageIntro eyebrow="Our story" title="We are Luxereva">
+        Anti-tarnish jewelry, made to shine with you every day.
       </PageIntro>
 
-      <section className="container-page py-12 grid md:grid-cols-3 gap-6">
-        {[
-          ["Curated quality", "Every product is chosen for feel, finish, and daily usefulness."],
-          ["Quiet luxury", "Clean design, polished formulas, and thoughtful details lead the experience."],
-          ["Easy rituals", "The shop is built around simple routines that feel elevated without effort."],
-        ].map(([title, copy]) => (
-          <div key={title} className="bg-white border border-gold/30 rounded-lg p-6">
-            <h2 className="text-lg font-medium text-brown-dark">{title}</h2>
-            <p className="mt-3 text-sm text-brown/75 leading-relaxed">{copy}</p>
-          </div>
-        ))}
+      <section className="container-page py-12 max-w-3xl space-y-5 text-brown/80 leading-relaxed">
+        <p>
+          At Luxereva, we believe jewelry is more than an accessory — it is a reflection
+          of confidence, elegance, and personal expression.
+        </p>
+        <p>
+          Luxereva was created with a simple vision: to make premium anti-tarnish
+          jewelry that combines luxury, durability, and everyday comfort. We wanted to
+          offer pieces that look timeless, feel special, and stay beautiful for longer —
+          without compromising on quality or affordability.
+        </p>
+        <p>
+          Our journey began with the desire to build a brand that celebrates modern
+          women who carry strength and grace in every part of life. Whether it&apos;s a
+          casual day out, an important meeting, or a special celebration, we believe the
+          right jewelry adds confidence to every moment.
+        </p>
+        <p>
+          Each piece at Luxereva is carefully selected to reflect sophistication,
+          minimal elegance, and lasting shine. Our anti-tarnish collection is designed
+          for daily wear, giving you style that stays with you — effortlessly.
+        </p>
+        <p>
+          Luxereva is proudly founded by Madan Mali, with the strong support and
+          partnership of his Co-Founder, his aunty Nisha Bharat Mali, whose experience,
+          trust, and shared vision became the foundation of this journey. Together, they
+          built Luxereva with the belief that a brand should not only sell products, but
+          also create emotional connection, trust, and long-term value for every
+          customer.
+        </p>
+        <p className="font-medium text-brown-dark">
+          More than just a jewelry brand, Luxereva is a promise of trust, quality, and
+          timeless beauty.
+        </p>
       </section>
 
       <section className="container-page pb-12">
@@ -28,7 +50,7 @@ export default function AboutUsPage() {
             <p className="text-xs uppercase tracking-widest2 text-gold mb-3">
               Shop the edit
             </p>
-            <h2 className="text-2xl font-light">Find your next ritual essential.</h2>
+            <h2 className="text-2xl font-light">Shine everyday with Luxereva.</h2>
           </div>
           <Link href="/products" className="btn-primary">
             Shop All Products

@@ -8,6 +8,8 @@ import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 
+const GIFT_WRAP_FEE = 12000; // ₹120 in paise
+
 export default function CheckoutPage() {
   const { items, subtotal, clearCart, hydrated } = useCart();
   const { user } = useAuth();
@@ -22,7 +24,10 @@ export default function CheckoutPage() {
     state: "",
     pincode: "",
   });
+  const [giftWrap, setGiftWrap] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
 
   useEffect(() => {
     if (user) {
@@ -54,11 +59,24 @@ export default function CheckoutPage() {
     setSubmitting(true);
 
     try {
+      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        throw new Error("Razorpay public key is not configured");
+      }
+
+      if (!window.Razorpay) {
+        throw new Error("Razorpay checkout is still loading. Please try again.");
+      }
+
       // 1. Create a Razorpay order on the server
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: subtotal }),
+        body: JSON.stringify({
+          userId: user?.uid || null,
+          customer: form,
+          items,
+          giftWrap,
+        }),
       });
       const orderData = await orderRes.json();
 
@@ -79,28 +97,31 @@ export default function CheckoutPage() {
         },
         theme: { color: "#846348" },
         handler: async function (response) {
-          // 3. Verify payment & save order on the server
-          const verifyRes = await fetch("/api/verify-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              userId: user?.uid || null,
-              customer: form,
-              items,
-              total: subtotal,
-            }),
-          });
-          const verifyData = await verifyRes.json();
+          try {
+            // 3. Verify payment & save order on the server
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
 
-          if (verifyData?.success) {
-            clearCart();
-            toast.success("Payment successful! Order placed.");
-            router.push("/account");
-          } else {
+            if (verifyData?.success) {
+              clearCart();
+              toast.success("Payment successful! Order placed.");
+              router.push("/account");
+            } else {
+              toast.error(verifyData?.error || "Payment verification failed.");
+              setSubmitting(false);
+            }
+          } catch (err) {
+            console.error(err);
             toast.error("Payment verification failed.");
+            setSubmitting(false);
           }
         },
         modal: {
@@ -111,18 +132,21 @@ export default function CheckoutPage() {
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response) {
+        toast.error(response.error?.description || "Payment failed.");
+        setSubmitting(false);
+      });
       rzp.open();
     } catch (err) {
       console.error(err);
       toast.error(err.message || "Something went wrong");
-    } finally {
       setSubmitting(false);
     }
   }
 
   return (
     <>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
       <div className="container-page py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         <form onSubmit={handlePay} className="lg:col-span-2 space-y-4">
           <h1 className="text-2xl uppercase tracking-widest2 text-brown-dark mb-4">
@@ -138,8 +162,20 @@ export default function CheckoutPage() {
           </div>
           <input name="pincode" placeholder="Pincode" value={form.pincode} onChange={handleChange} required className="input-field" />
 
+          <label className="flex items-center gap-3 bg-white border border-gold/30 rounded-lg p-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={giftWrap}
+              onChange={(e) => setGiftWrap(e.target.checked)}
+              className="w-4 h-4 accent-rosewood"
+            />
+            <span className="text-sm text-brown-dark">
+              Add Gift Wrap <span className="text-brown/60">({formatPrice(GIFT_WRAP_FEE)} Extra)</span>
+            </span>
+          </label>
+
           <button type="submit" disabled={submitting} className="btn-primary w-full mt-4">
-            {submitting ? "Processing…" : `Pay ${formatPrice(subtotal)} with Razorpay`}
+            {submitting ? "Processing…" : `Pay ${formatPrice(total)} with Razorpay`}
           </button>
         </form>
 
@@ -157,10 +193,16 @@ export default function CheckoutPage() {
                 <span>{formatPrice(item.price * item.qty)}</span>
               </li>
             ))}
+            {giftWrap && (
+              <li className="flex justify-between">
+                <span className="text-brown/80">Gift Wrap</span>
+                <span>{formatPrice(GIFT_WRAP_FEE)}</span>
+              </li>
+            )}
           </ul>
           <div className="border-t border-gold/30 pt-4 flex justify-between font-semibold text-brown-dark">
             <span>Total</span>
-            <span>{formatPrice(subtotal)}</span>
+            <span>{formatPrice(total)}</span>
           </div>
         </div>
       </div>

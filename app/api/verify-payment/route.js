@@ -10,11 +10,15 @@ export async function POST(req) {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      userId,
-      customer,
-      items,
-      total,
     } = body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return NextResponse.json({ success: false, error: "Missing payment details" }, { status: 400 });
+    }
+
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      return NextResponse.json({ success: false, error: "Razorpay secret is not configured" }, { status: 500 });
+    }
 
     // 1. Verify signature
     const generatedSignature = crypto
@@ -27,13 +31,27 @@ export async function POST(req) {
     }
 
     const adminDb = getAdminDb();
+    const pendingRef = adminDb.collection("pendingOrders").doc(razorpay_order_id);
+    const pendingSnap = await pendingRef.get();
+
+    if (!pendingSnap.exists) {
+      return NextResponse.json({ success: false, error: "Order not found" }, { status: 404 });
+    }
+
+    const pendingOrder = pendingSnap.data();
+
+    if (pendingOrder.status === "paid") {
+      return NextResponse.json({ success: true, orderId: pendingOrder.orderId });
+    }
 
     // 2. Save order to Firestore
     const orderRef = await adminDb.collection("orders").add({
-      userId: userId || null,
-      customer,
-      items,
-      total,
+      userId: pendingOrder.userId || null,
+      customer: pendingOrder.customer,
+      items: pendingOrder.items,
+      giftWrap: !!pendingOrder.giftWrap,
+      subtotal: pendingOrder.subtotal,
+      total: pendingOrder.total,
       paymentId: razorpay_payment_id,
       razorpayOrderId: razorpay_order_id,
       status: "paid",
@@ -41,7 +59,7 @@ export async function POST(req) {
     });
 
     // 3. Decrement stock for each purchased item (best-effort)
-    for (const item of items) {
+    for (const item of pendingOrder.items || []) {
       try {
         const productRef = adminDb.collection("products").doc(item.id);
         await productRef.update({
@@ -51,6 +69,13 @@ export async function POST(req) {
         console.error("Stock update failed for", item.id, e);
       }
     }
+
+    await pendingRef.update({
+      status: "paid",
+      orderId: orderRef.id,
+      paymentId: razorpay_payment_id,
+      paidAt: FieldValue.serverTimestamp(),
+    });
 
     return NextResponse.json({ success: true, orderId: orderRef.id });
   } catch (err) {
