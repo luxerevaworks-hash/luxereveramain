@@ -86,6 +86,8 @@ export function CartProvider({ children }) {
     subtotal,
     itemCount,
     hydrated,
+    giftWrap,
+    setGiftWrap,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

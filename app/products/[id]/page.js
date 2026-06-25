@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { doc, getDoc, collection, getDocs, query, where, limit, orderBy } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/utils";
 import { sampleProducts } from "@/lib/sampleProducts";
 import Logo from "@/components/Logo";
 import ProductCard from "@/components/ProductCard";
+import GiftingPainPoints from "@/components/GiftingPainPoints";
+import GiftWrapOption from "@/components/GiftWrapOption";
+import ProductFaq from "@/components/ProductFaq";
 import toast from "react-hot-toast";
 import { FiShield, FiRefreshCw, FiTruck, FiStar, FiChevronRight } from "react-icons/fi";
 
@@ -24,20 +27,14 @@ const FEATURES = [
 export default function ProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { addItem } = useCart();
+  const { addItem, giftWrap, setGiftWrap } = useCart();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
-  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [qty, setQty] = useState(1);
   const [variant, setVariant] = useState(null);
-
-  const reviewCount = reviews.length;
-  const avgRating = reviewCount
-    ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
-    : 0;
 
   useEffect(() => {
     async function load() {
@@ -48,15 +45,6 @@ export default function ProductDetailPage() {
         const data = snap.exists() ? { id: snap.id, ...snap.data() } : fallback;
         setProduct(data || null);
         if (data?.variants?.length) setVariant(data.variants[0]);
-
-        try {
-          const reviewsSnap = await getDocs(
-            query(collection(db, "products", id, "reviews"), orderBy("createdAt", "desc"))
-          );
-          setReviews(reviewsSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-        } catch (err) {
-          console.error(err);
-        }
 
         // load related products from same category
         if (data?.category) {
@@ -205,20 +193,6 @@ export default function ProductDetailPage() {
             {product.name}
           </h1>
 
-          {reviewCount > 0 && (
-            <div className="flex items-center gap-1 mt-2">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <FiStar
-                  key={s}
-                  className={`w-3.5 h-3.5 ${s <= Math.round(avgRating) ? "fill-gold text-gold" : "text-gold/30"}`}
-                />
-              ))}
-              <span className="text-xs text-brown/50 ml-2">
-                {avgRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
-              </span>
-            </div>
-          )}
-
           <div className="flex items-center gap-4 mt-4">
             <span className="text-2xl font-semibold text-brown-dark">
               {formatPrice(product.price)}
@@ -278,6 +252,11 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
+          {/* Gift Wrap */}
+          <div className="mt-6">
+            <GiftWrapOption checked={giftWrap} onChange={setGiftWrap} />
+          </div>
+
           {/* Buttons — hidden on mobile (shown in sticky bar below) */}
           <div className="hidden md:flex flex-col gap-3 mt-7">
             <button
@@ -311,44 +290,7 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Customer Reviews */}
-      {reviews.length > 0 && (
-        <section className="container-page mt-14">
-          <p className="text-xs uppercase tracking-widest2 text-brown/50 mb-1">Real Stories</p>
-          <h2 className="text-2xl md:text-3xl font-light text-brown-dark mb-8">
-            What our <span className="italic text-rosewood">customers say</span>
-          </h2>
-          <div className="flex flex-col gap-4">
-            {reviews.map((r) => (
-              <div key={r.id} className="bg-white rounded-2xl border border-gold/20 p-5 shadow-sm">
-                <div className="flex gap-0.5 mb-3">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <FiStar
-                      key={s}
-                      className={`w-4 h-4 ${s <= r.rating ? "fill-gold text-gold" : "text-gold/30"}`}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-brown-dark leading-relaxed mb-4">&quot;{r.text}&quot;</p>
-                <div className="flex items-center gap-3">
-                  {r.photo ? (
-                    <img
-                      src={r.photo}
-                      alt={r.name}
-                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-brown-dark flex items-center justify-center text-cream text-sm font-semibold flex-shrink-0">
-                      {r.name?.[0]?.toUpperCase() || "?"}
-                    </div>
-                  )}
-                  <p className="text-sm font-semibold text-brown-dark">{r.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      <GiftingPainPoints />
 
       {/* Related Products */}
       {related.length > 0 && (
@@ -368,6 +310,8 @@ export default function ProductDetailPage() {
           </div>
         </section>
       )}
+
+      <ProductFaq productName={product.name} />
 
       {/* Sticky bottom bar — mobile only */}
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gold/30 px-4 py-3 flex gap-3 shadow-lg">

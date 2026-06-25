@@ -3,15 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { useCart } from "@/context/CartContext";
+import { useCart, GIFT_WRAP_FEE } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
+import GiftWrapOption from "@/components/GiftWrapOption";
 import toast from "react-hot-toast";
 
-const GIFT_WRAP_FEE = 12000; // ₹120 in paise
-
 export default function CheckoutPage() {
-  const { items, subtotal, clearCart, hydrated } = useCart();
+  const { items, subtotal, clearCart, hydrated, giftWrap, setGiftWrap } = useCart();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -24,7 +23,6 @@ export default function CheckoutPage() {
     state: "",
     pincode: "",
   });
-  const [giftWrap, setGiftWrap] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
@@ -162,17 +160,7 @@ export default function CheckoutPage() {
           </div>
           <input name="pincode" placeholder="Pincode" value={form.pincode} onChange={handleChange} required className="input-field" />
 
-          <label className="flex items-center gap-3 bg-white border border-gold/30 rounded-lg p-4 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={giftWrap}
-              onChange={(e) => setGiftWrap(e.target.checked)}
-              className="w-4 h-4 accent-rosewood"
-            />
-            <span className="text-sm text-brown-dark">
-              Add Gift Wrap <span className="text-brown/60">({formatPrice(GIFT_WRAP_FEE)} Extra)</span>
-            </span>
-          </label>
+          <GiftWrapOption checked={giftWrap} onChange={setGiftWrap} />
 
           <button type="submit" disabled={submitting} className="btn-primary w-full mt-4">
             {submitting ? "Processing…" : `Pay ${formatPrice(total)} with Razorpay`}

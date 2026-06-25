@@ -12,7 +12,7 @@ import {
 } from "react-icons/fi";
 import Logo from "@/components/Logo";
 
-const ICON_CLASS = "w-7 h-7 sm:w-8 sm:h-8 mx-auto mb-2";
+const ICON_CLASS = "w-3.5 h-3.5 text-gold";
 
 const WHY_US = [
   { label: "Premium Finish", icon: <FiAward className={ICON_CLASS} /> },
@@ -23,80 +23,138 @@ const WHY_US = [
   { label: "1 Year Warranty", icon: <FiShield className={ICON_CLASS} /> },
 ];
 
+const SOCIALS = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/luxereva?igsh=OGdjMW1waGdqbmc2",
+    icon: <FiInstagram className="w-5 h-5" />,
+    className: "bg-gradient-to-br from-rosewood via-gold to-rosewood text-cream",
+  },
+  {
+    label: "Facebook",
+    href: "https://facebook.com",
+    icon: <FiFacebook className="w-5 h-5" />,
+    className: "bg-[#1877F2] text-white",
+  },
+  {
+    label: "Email",
+    href: "mailto:luxerevaworks@gmail.com",
+    icon: <FiMail className="w-5 h-5" />,
+    className: "bg-gold text-brown-dark",
+  },
+];
+
+const FOOTER_SECTIONS = [
+  {
+    title: "Quick Links",
+    links: [
+      { label: "Necklaces", href: "/products?category=necklaces" },
+      { label: "Earrings", href: "/products?category=earrings" },
+      { label: "Bracelets", href: "/products?category=bracelets" },
+      { label: "Rings", href: "/products?category=rings" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "About Us", href: "/about-us" },
+      { label: "Blogs", href: "/blogs" },
+      { label: "Terms & Conditions", href: "/terms-and-conditions" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { label: "Track Order", href: "/account" },
+      { label: "Contact", href: "/contact" },
+      { label: "FAQ", href: "/faq" },
+    ],
+  },
+  {
+    title: "Get In Touch",
+    links: [
+      { label: "info@luxereva.com", href: "mailto:info@luxereva.com" },
+      { label: "WhatsApp +91 84213 18199", href: "https://wa.me/918421318199" },
+    ],
+  },
+];
+
 export default function Footer() {
   return (
     <footer className="bg-brown-dark text-cream mt-16">
       {/* Why Choose Us */}
       <div className="border-b border-cream/10">
-        <div className="container-page py-10">
-          <h3 className="text-center uppercase tracking-widest2 text-gold text-sm mb-2">
+        <div className="container-page py-6">
+          <h3 className="text-center uppercase tracking-widest2 text-gold text-sm mb-1">
             Why Choose Us
           </h3>
-          <p className="text-center text-cream/60 text-sm mb-8 max-w-xl mx-auto leading-relaxed">
+          <p className="text-center text-cream/60 text-xs mb-4 max-w-xl mx-auto leading-relaxed">
             We believe jewellery is more than an accessory — it&apos;s a way to express your style.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-8 text-center">
+          <div className="flex flex-wrap justify-center gap-2">
             {WHY_US.map((item) => (
-              <div key={item.label} className="flex flex-col items-center">
-                <div className="text-cream/80">{item.icon}</div>
-                <p className="text-xs text-cream/70 leading-snug mt-1">{item.label}</p>
-              </div>
+              <span
+                key={item.label}
+                className="flex items-center gap-1.5 text-xs text-cream/80 bg-cream/5 border border-cream/10 rounded-full px-3 py-1.5"
+              >
+                {item.icon}
+                {item.label}
+              </span>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Main footer links */}
-      <div className="container-page py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8">
-        <div>
-          <div className="flex items-center gap-3 mb-3">
-            <Logo className="w-36 h-auto" onDark />
-          </div>
-          <p className="text-sm text-cream/70 leading-relaxed">
-            Premium trend-inspired jewellery crafted for comfort and long-lasting shine.
-          </p>
-        </div>
-        <div>
-          <h4 className="uppercase text-xs tracking-widest2 text-gold mb-4">
-            Shop
-          </h4>
-          <ul className="space-y-2 text-sm text-cream/80">
-            <li><Link href="/products?category=necklaces">Necklaces</Link></li>
-            <li><Link href="/products?category=earrings">Earrings</Link></li>
-            <li><Link href="/products?category=bracelets">Bracelets</Link></li>
-            <li><Link href="/products?category=rings">Rings</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="uppercase text-xs tracking-widest2 text-gold mb-4">
-            Help
-          </h4>
-          <ul className="space-y-2 text-sm text-cream/80">
-            <li><Link href="/account">Track Order</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
-            <li><Link href="/faq">FAQ</Link></li>
-            <li><Link href="/blogs">Blogs</Link></li>
-            <li><Link href="/terms-and-conditions">Terms &amp; Conditions</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="uppercase text-xs tracking-widest2 text-gold mb-4">
-            Connect
-          </h4>
-          <div className="flex gap-4 text-cream/80">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
-              <FiInstagram className="w-5 h-5" />
+      {/* Logo, tagline & socials */}
+      <div className="container-page py-12 flex flex-col items-center text-center">
+        <Logo className="w-40 h-auto" onDark />
+        <p className="text-sm text-cream/60 leading-relaxed max-w-md mt-5">
+          Premium, trend-inspired jewellery designed for everyday elegance, thoughtful gifting,
+          and comfortable, long-lasting shine.
+        </p>
+        <div className="flex items-center gap-4 mt-6">
+          {SOCIALS.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={s.label}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-105 ${s.className}`}
+            >
+              {s.icon}
             </a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-              <FiFacebook className="w-5 h-5" />
-            </a>
-            <a href="mailto:luxerevaworks@gmail.com" aria-label="Email">
-              <FiMail className="w-5 h-5" />
-            </a>
-          </div>
-          <p className="text-xs text-cream/50 mt-4">luxerevaworks@gmail.com</p>
+          ))}
         </div>
       </div>
+
+      {/* Accordion link sections */}
+      <div className="container-page max-w-2xl mx-auto pb-4">
+        {FOOTER_SECTIONS.map((section) => (
+          <details key={section.title} className="group border-t border-cream/10 py-4">
+            <summary className="cursor-pointer list-none flex items-center justify-between gap-3 uppercase text-xs tracking-widest2 text-gold">
+              {section.title}
+              <span className="flex-shrink-0 text-lg leading-none transition-transform duration-200 group-open:rotate-45">
+                +
+              </span>
+            </summary>
+            <ul className="space-y-2 text-sm text-cream/80 mt-4">
+              {section.links.map((link) => (
+                <li key={link.label}>
+                  {link.href.startsWith("/") ? (
+                    <Link href={link.href}>{link.label}</Link>
+                  ) : (
+                    <a href={link.href} target="_blank" rel="noreferrer">
+                      {link.label}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
+      </div>
+
       <div className="border-t border-cream/10 py-4 text-center text-xs text-cream/60">
         © {new Date().getFullYear()} Luxereva. All rights reserved.
       </div>

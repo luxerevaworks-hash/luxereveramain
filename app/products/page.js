@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
-import GiftingPainPoints from "@/components/GiftingPainPoints";
 import { productCategories, sampleProducts } from "@/lib/sampleProducts";
 
 export default function ProductsPage() {
@@ -80,8 +79,6 @@ function ProductsContent() {
           </div>
         </div>
       </section>
-
-      <GiftingPainPoints />
 
       <div className="container-page py-10">
         <div className="flex flex-col lg:flex-row gap-4 mb-8">

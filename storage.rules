@@ -11,5 +11,10 @@ service firebase.storage {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /blogs/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }
