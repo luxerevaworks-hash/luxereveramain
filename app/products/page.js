@@ -75,7 +75,6 @@ function ProductsContent() {
             <h1 className="text-3xl md:text-5xl font-light text-brown-dark capitalize">
               {activeCategory === "all" ? "All Products" : activeCategory}
             </h1>
-            <p className="text-brown/60 mt-3">{filtered.length} items</p>
           </div>
         </div>
       </section>

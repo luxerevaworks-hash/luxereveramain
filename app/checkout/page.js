@@ -23,6 +23,7 @@ export default function CheckoutPage() {
     state: "",
     pincode: "",
   });
+  const [paymentMethod, setPaymentMethod] = useState("prepaid");
   const [submitting, setSubmitting] = useState(false);
 
   const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
@@ -57,6 +58,27 @@ export default function CheckoutPage() {
     setSubmitting(true);
 
     try {
+      if (paymentMethod === "cod") {
+        const codRes = await fetch("/api/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user?.uid || null,
+            customer: form,
+            items,
+            giftWrap,
+            paymentMethod: "cod",
+          }),
+        });
+        const codData = await codRes.json();
+        if (!codData?.success) throw new Error(codData?.error || "Could not place order");
+
+        clearCart();
+        toast.success("Order placed! Pay on delivery.");
+        router.push("/account");
+        return;
+      }
+
       if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
         throw new Error("Razorpay public key is not configured");
       }
@@ -74,6 +96,7 @@ export default function CheckoutPage() {
           customer: form,
           items,
           giftWrap,
+          paymentMethod: "prepaid",
         }),
       });
       const orderData = await orderRes.json();
@@ -162,8 +185,48 @@ export default function CheckoutPage() {
 
           <GiftWrapOption checked={giftWrap} onChange={setGiftWrap} />
 
+          <div>
+            <p className="text-xs uppercase tracking-widest2 text-brown-dark mb-3">Payment Method</p>
+            <div className="flex gap-3">
+              <label
+                className={`flex-1 cursor-pointer border rounded-lg px-4 py-3 text-sm text-center transition-colors ${
+                  paymentMethod === "prepaid" ? "border-rosewood bg-rosewood/10 text-rosewood" : "border-gold/40 text-brown-dark"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="prepaid"
+                  checked={paymentMethod === "prepaid"}
+                  onChange={() => setPaymentMethod("prepaid")}
+                  className="hidden"
+                />
+                Prepaid (Razorpay)
+              </label>
+              <label
+                className={`flex-1 cursor-pointer border rounded-lg px-4 py-3 text-sm text-center transition-colors ${
+                  paymentMethod === "cod" ? "border-rosewood bg-rosewood/10 text-rosewood" : "border-gold/40 text-brown-dark"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={() => setPaymentMethod("cod")}
+                  className="hidden"
+                />
+                Cash on Delivery
+              </label>
+            </div>
+          </div>
+
           <button type="submit" disabled={submitting} className="btn-primary w-full mt-4">
-            {submitting ? "Processing…" : `Pay ${formatPrice(total)} with Razorpay`}
+            {submitting
+              ? "Processing…"
+              : paymentMethod === "cod"
+              ? `Place Order — Pay ${formatPrice(total)} on Delivery`
+              : `Pay ${formatPrice(total)} with Razorpay`}
           </button>
         </form>
 

@@ -8,7 +8,7 @@ import AdminLayout from "@/components/AdminLayout";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 
-const STATUSES = ["paid", "processing", "shipped", "delivered", "cancelled"];
+const STATUSES = ["pending", "paid", "processing", "shipped", "delivered", "cancelled"];
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -40,6 +40,14 @@ export default function AdminOrdersPage() {
       await updateDoc(doc(db, "orders", id), { status });
       setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
       toast.success("Order status updated");
+
+      if (status === "shipped") {
+        fetch("/api/notify-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: id, event: "shipped" }),
+        }).catch((err) => console.error(err));
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status");
@@ -84,6 +92,9 @@ export default function AdminOrdersPage() {
                     <p className="text-xs text-brown/60">
                       {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : ""}
                     </p>
+                    <span className="inline-block mt-1 text-[10px] uppercase tracking-widest2 px-2 py-0.5 rounded-full bg-gold/20 text-brown-dark">
+                      {order.paymentMethod === "cod" ? "COD" : "Prepaid"}
+                    </span>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-gold">{formatPrice(order.total)}</p>

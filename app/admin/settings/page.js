@@ -8,6 +8,14 @@ import { nanoid } from "nanoid";
 import AdminGuard from "@/components/AdminGuard";
 import AdminLayout from "@/components/AdminLayout";
 import toast from "react-hot-toast";
+import { CATEGORIES } from "@/lib/categories";
+
+async function uploadToStorage(file, folder) {
+  const path = `products/${folder}/${nanoid()}-${file.name}`;
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  return getDownloadURL(storageRef);
+}
 
 export default function AdminSettingsPage() {
   const [form, setForm] = useState({
@@ -19,6 +27,11 @@ export default function AdminSettingsPage() {
     heroImage: "",
     bannerImage: "",
     bannerLink: "",
+    heroSlides: [],
+    categoryImages: {},
+    ugc: { title: "", subtitle: "", items: [] },
+    liveViewers: { enabled: true },
+    deliveryEstimate: { enabled: true, minDays: 5, maxDays: 7 },
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -80,6 +93,121 @@ export default function AdminSettingsPage() {
     }
   }
 
+  // ---- Hero slides ----
+  function addHeroSlide() {
+    setForm((prev) => ({
+      ...prev,
+      heroSlides: [
+        ...prev.heroSlides,
+        { id: nanoid(), image: "", title: "", subtitle: "", ctaText: "", ctaLink: "" },
+      ],
+    }));
+  }
+
+  function updateHeroSlide(id, field, value) {
+    setForm((prev) => ({
+      ...prev,
+      heroSlides: prev.heroSlides.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
+    }));
+  }
+
+  function removeHeroSlide(id) {
+    setForm((prev) => ({ ...prev, heroSlides: prev.heroSlides.filter((s) => s.id !== id) }));
+  }
+
+  async function handleHeroSlideImageUpload(id, file) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToStorage(file, "heroSlides");
+      updateHeroSlide(id, "image", url);
+      toast.success("Slide image uploaded");
+    } catch (err) {
+      console.error(err);
+      toast.error("Slide image upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // ---- Category images ----
+  async function handleCategoryImageUpload(slug, file) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToStorage(file, "categories");
+      setForm((prev) => ({
+        ...prev,
+        categoryImages: { ...prev.categoryImages, [slug]: url },
+      }));
+      toast.success("Category image uploaded");
+    } catch (err) {
+      console.error(err);
+      toast.error("Category image upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // ---- UGC / Lookbook ----
+  function updateUgcField(field, value) {
+    setForm((prev) => ({ ...prev, ugc: { ...prev.ugc, [field]: value } }));
+  }
+
+  function addUgcItem() {
+    setForm((prev) => ({
+      ...prev,
+      ugc: {
+        ...prev.ugc,
+        items: [...(prev.ugc.items || []), { id: nanoid(), image: "", link: "", caption: "" }],
+      },
+    }));
+  }
+
+  function updateUgcItem(id, field, value) {
+    setForm((prev) => ({
+      ...prev,
+      ugc: {
+        ...prev.ugc,
+        items: prev.ugc.items.map((it) => (it.id === id ? { ...it, [field]: value } : it)),
+      },
+    }));
+  }
+
+  function removeUgcItem(id) {
+    setForm((prev) => ({
+      ...prev,
+      ugc: { ...prev.ugc, items: prev.ugc.items.filter((it) => it.id !== id) },
+    }));
+  }
+
+  async function handleUgcImageUpload(id, file) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToStorage(file, "ugc");
+      updateUgcItem(id, "image", url);
+      toast.success("Image uploaded");
+    } catch (err) {
+      console.error(err);
+      toast.error("Image upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // ---- Live viewers / delivery estimate ----
+  function updateLiveViewers(field, value) {
+    setForm((prev) => ({ ...prev, liveViewers: { ...prev.liveViewers, [field]: value } }));
+  }
+
+  function updateDeliveryEstimate(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      deliveryEstimate: { ...prev.deliveryEstimate, [field]: value },
+    }));
+  }
+
   async function save(e) {
     e.preventDefault();
     setSaving(true);
@@ -88,6 +216,14 @@ export default function AdminSettingsPage() {
         ...form,
         shippingFee: Number(form.shippingFee) || 0,
         freeShippingAt: Number(form.freeShippingAt) || 0,
+        liveViewers: {
+          enabled: !!form.liveViewers.enabled,
+        },
+        deliveryEstimate: {
+          enabled: !!form.deliveryEstimate.enabled,
+          minDays: Number(form.deliveryEstimate.minDays) || 0,
+          maxDays: Number(form.deliveryEstimate.maxDays) || 0,
+        },
         updatedAt: serverTimestamp(),
       }, { merge: true });
       toast.success("Settings saved");
@@ -173,6 +309,214 @@ export default function AdminSettingsPage() {
               onChange={updateField}
               className="input-field mt-1"
             />
+          </div>
+
+          {/* Hero Slides */}
+          <div className="border-t border-gold/30 pt-4">
+            <div className="flex items-center justify-between">
+              <label className="text-xs uppercase tracking-widest2 text-brown-dark">
+                Homepage Hero Slides
+              </label>
+              <button type="button" onClick={addHeroSlide} className="text-xs text-rosewood font-semibold">
+                + Add Slide
+              </button>
+            </div>
+            <p className="text-xs text-brown/50 mt-1">
+              Leave empty to keep the default single hero. Each slide replaces the hero text + photo.
+            </p>
+            <div className="space-y-4 mt-3">
+              {form.heroSlides.map((slide, idx) => (
+                <div key={slide.id} className="border border-gold/30 rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-widest2 text-sage">Slide {idx + 1}</span>
+                    <button type="button" onClick={() => removeHeroSlide(slide.id)} className="text-xs text-rosewood">
+                      Remove
+                    </button>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleHeroSlideImageUpload(slide.id, e.target.files?.[0])}
+                    className="block text-sm"
+                  />
+                  {slide.image && (
+                    <div className="relative aspect-[2/1] max-w-xs rounded-lg overflow-hidden border border-gold/30 bg-cream">
+                      <img src={slide.image} alt={`Slide ${idx + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    placeholder="Title (e.g. Loved By 1K+ Customers)"
+                    value={slide.title}
+                    onChange={(e) => updateHeroSlide(slide.id, "title", e.target.value)}
+                    className="input-field"
+                  />
+                  <input
+                    placeholder="Subtitle (optional)"
+                    value={slide.subtitle}
+                    onChange={(e) => updateHeroSlide(slide.id, "subtitle", e.target.value)}
+                    className="input-field"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      placeholder="Button text (e.g. Explore Now)"
+                      value={slide.ctaText}
+                      onChange={(e) => updateHeroSlide(slide.id, "ctaText", e.target.value)}
+                      className="input-field"
+                    />
+                    <input
+                      placeholder="Button link (e.g. /products)"
+                      value={slide.ctaLink}
+                      onChange={(e) => updateHeroSlide(slide.id, "ctaLink", e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Category Images */}
+          <div className="border-t border-gold/30 pt-4">
+            <label className="text-xs uppercase tracking-widest2 text-brown-dark">
+              Shop by Category Images
+            </label>
+            <p className="text-xs text-brown/50 mt-1">
+              Overrides the auto-picked product image for each category circle on the homepage.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4 mt-3">
+              {CATEGORIES.map((cat) => (
+                <div key={cat.slug} className="flex items-center gap-3">
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border border-gold/30 bg-cream flex-shrink-0">
+                    {form.categoryImages[cat.slug] && (
+                      <img
+                        src={form.categoryImages[cat.slug]}
+                        alt={cat.name}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs text-brown-dark mb-1">{cat.name}</p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleCategoryImageUpload(cat.slug, e.target.files?.[0])}
+                      className="block text-xs"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* UGC / Lookbook */}
+          <div className="border-t border-gold/30 pt-4">
+            <label className="text-xs uppercase tracking-widest2 text-brown-dark">
+              UGC / Lookbook Section
+            </label>
+            <input
+              placeholder="Section title"
+              value={form.ugc.title}
+              onChange={(e) => updateUgcField("title", e.target.value)}
+              className="input-field mt-2"
+            />
+            <input
+              placeholder="Section subtitle"
+              value={form.ugc.subtitle}
+              onChange={(e) => updateUgcField("subtitle", e.target.value)}
+              className="input-field mt-2"
+            />
+
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-xs uppercase tracking-widest2 text-sage">Images</span>
+              <button type="button" onClick={addUgcItem} className="text-xs text-rosewood font-semibold">
+                + Add Image
+              </button>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4 mt-3">
+              {(form.ugc.items || []).map((item, idx) => (
+                <div key={item.id} className="border border-gold/30 rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-widest2 text-sage">Image {idx + 1}</span>
+                    <button type="button" onClick={() => removeUgcItem(item.id)} className="text-xs text-rosewood">
+                      Remove
+                    </button>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleUgcImageUpload(item.id, e.target.files?.[0])}
+                    className="block text-sm"
+                  />
+                  {item.image && (
+                    <div className="relative aspect-square max-w-[140px] rounded-lg overflow-hidden border border-gold/30 bg-cream">
+                      <img src={item.image} alt={`UGC ${idx + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    placeholder="Link (optional, e.g. Instagram post URL)"
+                    value={item.link}
+                    onChange={(e) => updateUgcItem(item.id, "link", e.target.value)}
+                    className="input-field"
+                  />
+                  <input
+                    placeholder="Caption (optional)"
+                    value={item.caption}
+                    onChange={(e) => updateUgcItem(item.id, "caption", e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Live Viewer Count */}
+          <div className="border-t border-gold/30 pt-4">
+            <label className="flex items-center gap-2 text-xs uppercase tracking-widest2 text-brown-dark">
+              <input
+                type="checkbox"
+                checked={form.liveViewers.enabled}
+                onChange={(e) => updateLiveViewers("enabled", e.target.checked)}
+              />
+              Show Live Viewer Count on Product Pages
+            </label>
+            <p className="text-xs text-brown/50 mt-1">
+              Shows the real number of visitors currently viewing each product page.
+            </p>
+          </div>
+
+          {/* Estimated Delivery */}
+          <div className="border-t border-gold/30 pt-4">
+            <label className="flex items-center gap-2 text-xs uppercase tracking-widest2 text-brown-dark">
+              <input
+                type="checkbox"
+                checked={form.deliveryEstimate.enabled}
+                onChange={(e) => updateDeliveryEstimate("enabled", e.target.checked)}
+              />
+              Show Estimated Delivery Date on Product Pages
+            </label>
+            <div className="grid grid-cols-2 gap-4 mt-3 max-w-sm">
+              <div>
+                <label className="text-xs text-brown/60">Min days</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.deliveryEstimate.minDays}
+                  onChange={(e) => updateDeliveryEstimate("minDays", e.target.value)}
+                  className="input-field mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-brown/60">Max days</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.deliveryEstimate.maxDays}
+                  onChange={(e) => updateDeliveryEstimate("maxDays", e.target.value)}
+                  className="input-field mt-1"
+                />
+              </div>
+            </div>
           </div>
 
           <button disabled={saving} className="btn-primary">

@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { sampleProducts } from "@/lib/sampleProducts";
+import { sendOrderConfirmationWhatsApp } from "@/lib/whatsapp";
+import { sendEmail } from "@/lib/email";
+import { orderConfirmationEmail } from "@/lib/emailTemplates";
 
 const GIFT_WRAP_FEE = 12000;
 
@@ -58,7 +61,44 @@ async function buildServerCart(items = [], giftWrap = false) {
 
 export async function POST(req) {
   try {
-    const { userId, customer, items, giftWrap } = await req.json();
+    const { userId, customer, items, giftWrap, paymentMethod } = await req.json();
+
+    if (paymentMethod === "cod") {
+      const serverCart = await buildServerCart(items, !!giftWrap);
+      const adminDb = getAdminDb();
+
+      const orderRef = await adminDb.collection("orders").add({
+        userId: userId || null,
+        customer,
+        items: serverCart.items,
+        giftWrap: !!giftWrap,
+        subtotal: serverCart.subtotal,
+        total: serverCart.total,
+        paymentMethod: "cod",
+        status: "pending",
+        createdAt: FieldValue.serverTimestamp(),
+      });
+
+      for (const item of serverCart.items) {
+        try {
+          await adminDb.collection("products").doc(item.id).update({
+            stock: FieldValue.increment(-item.qty),
+          });
+        } catch (e) {
+          console.error("Stock update failed for", item.id, e);
+        }
+      }
+
+      const order = { id: orderRef.id, customer, items: serverCart.items, total: serverCart.total, paymentMethod: "cod" };
+      sendOrderConfirmationWhatsApp(order).catch((e) => console.error(e));
+      if (customer?.email) {
+        const { subject, html } = orderConfirmationEmail(order);
+        sendEmail({ to: customer.email, subject, html }).catch((e) => console.error(e));
+      }
+
+      return NextResponse.json({ success: true, orderId: orderRef.id });
+    }
+
     const keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
@@ -91,6 +131,7 @@ export async function POST(req) {
       giftWrap: !!giftWrap,
       subtotal: serverCart.subtotal,
       total: serverCart.total,
+      paymentMethod: "prepaid",
       status: "created",
       createdAt: FieldValue.serverTimestamp(),
     });

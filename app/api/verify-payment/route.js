@@ -2,6 +2,9 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
+import { sendOrderConfirmationWhatsApp } from "@/lib/whatsapp";
+import { sendEmail } from "@/lib/email";
+import { orderConfirmationEmail } from "@/lib/emailTemplates";
 
 export async function POST(req) {
   try {
@@ -54,9 +57,23 @@ export async function POST(req) {
       total: pendingOrder.total,
       paymentId: razorpay_payment_id,
       razorpayOrderId: razorpay_order_id,
+      paymentMethod: pendingOrder.paymentMethod || "prepaid",
       status: "paid",
       createdAt: FieldValue.serverTimestamp(),
     });
+
+    const confirmedOrder = {
+      id: orderRef.id,
+      customer: pendingOrder.customer,
+      items: pendingOrder.items,
+      total: pendingOrder.total,
+      paymentMethod: pendingOrder.paymentMethod || "prepaid",
+    };
+    sendOrderConfirmationWhatsApp(confirmedOrder).catch((e) => console.error(e));
+    if (pendingOrder.customer?.email) {
+      const { subject, html } = orderConfirmationEmail(confirmedOrder);
+      sendEmail({ to: pendingOrder.customer.email, subject, html }).catch((e) => console.error(e));
+    }
 
     // 3. Decrement stock for each purchased item (best-effort)
     for (const item of pendingOrder.items || []) {

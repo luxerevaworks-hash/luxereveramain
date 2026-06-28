@@ -55,6 +55,14 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Ephemeral live-visitor heartbeats — no PII, just path/productId/timestamp.
+    // Anyone can write their own session doc; reads power the real-time
+    // viewer count (product pages) and the admin live-visitors dashboard.
+    match /presence/{sessionId} {
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(["path", "productId", "lastSeen"]);
+    }
+
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if isSafeUserCreate(userId) || isAdmin();

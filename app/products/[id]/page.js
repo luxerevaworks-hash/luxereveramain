@@ -7,13 +7,14 @@ import Link from "next/link";
 import { doc, getDoc, collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useCart } from "@/context/CartContext";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, getEstimatedDelivery } from "@/lib/utils";
 import { sampleProducts } from "@/lib/sampleProducts";
 import Logo from "@/components/Logo";
 import ProductCard from "@/components/ProductCard";
 import GiftingPainPoints from "@/components/GiftingPainPoints";
 import GiftWrapOption from "@/components/GiftWrapOption";
 import ProductFaq from "@/components/ProductFaq";
+import LiveViewerBadge from "@/components/LiveViewerBadge";
 import toast from "react-hot-toast";
 import { FiShield, FiRefreshCw, FiTruck, FiStar, FiChevronRight } from "react-icons/fi";
 
@@ -35,6 +36,19 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [qty, setQty] = useState(1);
   const [variant, setVariant] = useState(null);
+  const [storeSettings, setStoreSettings] = useState(null);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const snap = await getDoc(doc(db, "settings", "store"));
+        if (snap.exists()) setStoreSettings(snap.data());
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -204,6 +218,10 @@ export default function ProductDetailPage() {
             )}
           </div>
 
+          {storeSettings?.liveViewers?.enabled !== false && (
+            <LiveViewerBadge productId={product.id} />
+          )}
+
           <p className="text-sm text-brown/80 mt-5 leading-relaxed">
             {product.description}
           </p>
@@ -256,6 +274,20 @@ export default function ProductDetailPage() {
           <div className="mt-6">
             <GiftWrapOption checked={giftWrap} onChange={setGiftWrap} />
           </div>
+
+          {storeSettings?.deliveryEstimate?.enabled !== false && (
+            <p className="flex items-center gap-1.5 text-xs text-brown-dark mt-4">
+              <FiTruck className="w-3.5 h-3.5 text-gold" />
+              <span>
+                Delivery by{" "}
+                {getEstimatedDelivery(
+                  product.id,
+                  storeSettings?.deliveryEstimate?.minDays || 5,
+                  storeSettings?.deliveryEstimate?.maxDays || 7
+                )}
+              </span>
+            </p>
+          )}
 
           {/* Buttons — hidden on mobile (shown in sticky bar below) */}
           <div className="hidden md:flex flex-col gap-3 mt-7">
