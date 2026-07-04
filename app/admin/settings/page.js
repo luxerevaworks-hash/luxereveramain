@@ -381,19 +381,17 @@ export default function AdminSettingsPage() {
               Shop by Category Images
             </label>
             <p className="text-xs text-brown/50 mt-1">
-              Overrides the auto-picked product image for each category circle on the homepage.
+              Upload an optional image to replace the default category circle on the homepage.
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mt-3">
               {CATEGORIES.map((cat) => (
                 <div key={cat.slug} className="flex items-center gap-3">
                   <div className="relative w-14 h-14 rounded-full overflow-hidden border border-gold/30 bg-cream flex-shrink-0">
-                    {form.categoryImages[cat.slug] && (
-                      <img
-                        src={form.categoryImages[cat.slug]}
-                        alt={cat.name}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+                    <img
+                      src={form.categoryImages[cat.slug] || cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <p className="text-xs text-brown-dark mb-1">{cat.name}</p>

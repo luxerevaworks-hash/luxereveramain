@@ -15,6 +15,7 @@ import GiftingPainPoints from "@/components/GiftingPainPoints";
 import GiftWrapOption from "@/components/GiftWrapOption";
 import ProductFaq from "@/components/ProductFaq";
 import LiveViewerBadge from "@/components/LiveViewerBadge";
+import ProductReviews from "@/components/ProductReviews";
 import toast from "react-hot-toast";
 import { FiShield, FiRefreshCw, FiTruck, FiStar, FiChevronRight } from "react-icons/fi";
 
@@ -186,7 +187,7 @@ export default function ProductDetailPage() {
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
-                  className={`relative flex-shrink-0 w-18 h-18 w-[72px] h-[72px] rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`relative flex-shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden border-2 transition-all ${
                     activeImage === idx ? "border-rosewood scale-105" : "border-gold/30"
                   }`}
                 >
@@ -323,6 +324,7 @@ export default function ProductDetailPage() {
       </div>
 
       <GiftingPainPoints />
+      <ProductReviews />
 
       {/* Related Products */}
       {related.length > 0 && (

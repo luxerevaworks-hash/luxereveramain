@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 const COLUMNS = ["id", "title", "description", "link", "image_link", "availability", "price", "condition", "brand"];
 
 function csvEscape(value = "") {

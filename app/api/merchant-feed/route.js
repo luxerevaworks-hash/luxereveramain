@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 function escapeXml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")

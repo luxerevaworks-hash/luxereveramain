@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { collectionGroup, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { FiStar } from "react-icons/fi";
+
+const HOME_REVIEWS_LIMIT = 8;
 
 function Stars({ rating }) {
   return (
@@ -21,7 +24,7 @@ export default function HomeReviews() {
   useEffect(() => {
     async function load() {
       try {
-        const q = query(collectionGroup(db, "reviews"), orderBy("createdAt", "desc"), limit(8));
+        const q = query(collectionGroup(db, "reviews"), orderBy("createdAt", "desc"), limit(HOME_REVIEWS_LIMIT));
         const snap = await getDocs(q);
         setReviews(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (err) {
@@ -56,6 +59,13 @@ export default function HomeReviews() {
           </div>
         ))}
       </div>
+      {reviews.length >= HOME_REVIEWS_LIMIT && (
+        <div className="text-center mt-8">
+          <Link href="/reviews" className="btn-outline inline-block">
+            View More Reviews
+          </Link>
+        </div>
+      )}
     </section>
   );
 }
