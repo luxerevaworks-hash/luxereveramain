@@ -125,8 +125,12 @@ export default function ProductDetailPage() {
     router.push("/checkout");
   }
 
-  const inStock = product.stock > 0;
-  const lowStock = inStock && product.stock <= 5;
+  // Older catalogue records may not have a stock field. They are sellable until
+  // inventory is explicitly tracked, instead of leaving every purchase button disabled.
+  const stock = Number(product.stock);
+  const hasTrackedStock = Number.isFinite(stock);
+  const inStock = !hasTrackedStock || stock > 0;
+  const lowStock = hasTrackedStock && inStock && stock <= 5;
 
   return (
     <div className="bg-cream min-h-screen pb-28 md:pb-0">
@@ -262,7 +266,7 @@ export default function ProductDetailPage() {
               </button>
               <span className="w-10 text-center text-brown-dark font-medium">{qty}</span>
               <button
-                onClick={() => setQty((q) => Math.min(product.stock || 99, q + 1))}
+                onClick={() => setQty((q) => Math.min(hasTrackedStock ? stock : 99, q + 1))}
                 className="w-11 h-11 text-lg text-brown-dark hover:bg-gold/20 transition-colors flex items-center justify-center"
                 aria-label="Increase"
               >

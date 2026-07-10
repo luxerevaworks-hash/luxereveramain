@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
 import Image from "next/image";
+import { useRef, useState } from "react";
+import { FiMaximize2, FiPause, FiPlay } from "react-icons/fi";
 
-const DEFAULT_TITLE = "The Luxereva's Lookbook";
+const DEFAULT_TITLE = "Loved By Thousands";
 const DEFAULT_SUBTITLE =
-  "Discover how our community styles their favorite Luxereva pieces.";
+  "Real customer videos, unboxings, and first impressions from the Luxereva community.";
 const INSTAGRAM_PROFILE = "https://www.instagram.com/luxereva/";
 const DEFAULT_ITEMS = [
   {
@@ -40,111 +41,107 @@ const DEFAULT_ITEMS = [
   },
 ];
 
-const INSTAGRAM_POST_PATTERN = /instagram\.com\/(reel|p)\//;
-
-function processInstagramEmbeds() {
-  if (typeof window === "undefined") return;
-  if (window.instgrm?.Embeds) {
-    window.instgrm.Embeds.process();
-    return;
-  }
-  if (document.getElementById("instagram-embed-script")) return;
-  const script = document.createElement("script");
-  script.id = "instagram-embed-script";
-  script.src = "https://www.instagram.com/embed.js";
-  script.async = true;
-  script.onload = () => window.instgrm?.Embeds?.process();
-  document.body.appendChild(script);
-}
-
 export default function UgcSection({ ugc }) {
-  const customItems = (ugc?.items || []).filter((item) => item.image);
+  const customItems = (ugc?.items || []).filter(
+    (item) => item.image || item.video || item.link
+  );
   const items = customItems.length ? customItems : DEFAULT_ITEMS;
-
-  useEffect(() => {
-    processInstagramEmbeds();
-  }, [items]);
-
-  const Tile = ({ item }) => {
-    if (INSTAGRAM_POST_PATTERN.test(item.link || "")) {
-      return (
-        <div className="flex justify-center">
-          <blockquote
-            className="instagram-media"
-            data-instgrm-permalink={item.link}
-            data-instgrm-version="14"
-            style={{ margin: 0 }}
-          >
-            <a href={item.link} target="_blank" rel="noopener noreferrer">
-              {item.caption || "View this reel on Instagram"}
-            </a>
-          </blockquote>
-        </div>
-      );
-    }
-
-    return (
-      <div className="relative aspect-[9/12] rounded-lg overflow-hidden bg-cream border border-gold/20 group">
-        <Image
-          src={item.image}
-          alt={item.caption || "Customer styled Luxereva piece"}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <span className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white text-sm">
-          ▶
-        </span>
-        {item.caption && (
-          <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[11px] px-3 py-2 line-clamp-1">
-            {item.caption}
-          </span>
-        )}
-      </div>
-    );
-  };
 
   return (
     <section className="bg-white py-14 md:py-20">
       <div className="container-page">
-      <h2 className="text-center uppercase tracking-widest2 text-brown-dark text-xl">
-        {ugc?.title || DEFAULT_TITLE}
-      </h2>
-      <p className="text-center text-brown/60 mt-3 max-w-md mx-auto">
-        - {ugc?.subtitle || DEFAULT_SUBTITLE} -
-      </p>
+        <h2 className="text-center font-serif text-3xl sm:text-4xl font-semibold text-brown-dark">
+          {ugc?.title || DEFAULT_TITLE}
+        </h2>
+        <p className="text-center text-brown/60 mt-3 max-w-2xl mx-auto text-[11px] uppercase tracking-[0.22em] font-semibold">
+          {ugc?.subtitle || DEFAULT_SUBTITLE}
+        </p>
 
-      <div className="flex flex-wrap items-start justify-center gap-x-6 gap-y-10 mt-10">
-        {items.map((item) => {
-          const isReel = INSTAGRAM_POST_PATTERN.test(item.link || "");
-          return (
-            <div
+        <div className="mt-10 flex gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+          {items.map((item) => (
+            <ReelCard
               key={item.id}
-              className={isReel ? "w-full min-w-[326px] max-w-[400px]" : "w-[45%] sm:w-[30%] md:w-[22%] max-w-[260px]"}
-            >
-              {isReel ? (
-                <Tile item={item} />
-              ) : item.link ? (
-                <a href={item.link} target="_blank" rel="noopener noreferrer">
-                  <Tile item={item} />
-                </a>
-              ) : (
-                <Tile item={item} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div className="text-center mt-8">
-        <a
-          href={INSTAGRAM_PROFILE}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-outline inline-block"
-        >
-          View More On Instagram
-        </a>
-      </div>
+              item={item}
+            />
+          ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <a
+            href={INSTAGRAM_PROFILE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline inline-block"
+          >
+            View More On Instagram
+          </a>
+        </div>
       </div>
     </section>
+  );
+}
+
+function ReelCard({ item }) {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const videoRef = useRef(null);
+
+  function togglePlayback() {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  }
+
+  return (
+    <article className="shrink-0 snap-start w-[185px] sm:w-[215px] md:w-[235px]">
+      <div className="relative aspect-[9/16] rounded-[1.6rem] overflow-hidden bg-black border border-gold/20 shadow-sm">
+        {item.video ? (
+          <video
+            ref={videoRef}
+            src={item.video}
+            poster={item.image || undefined}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          />
+        ) : (
+          <Image
+            src={item.image}
+            alt={item.caption || "Customer styled Luxereva piece"}
+            fill
+            className="object-cover"
+          />
+        )}
+
+        {item.video && (
+          <button
+            type="button"
+            onClick={togglePlayback}
+            aria-label={isPlaying ? "Pause customer video" : "Play customer video"}
+            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm"
+          >
+            {isPlaying ? <FiPause className="h-3.5 w-3.5" /> : <FiPlay className="h-3.5 w-3.5" />}
+          </button>
+        )}
+        <FiMaximize2 className="absolute top-4 left-4 h-3.5 w-3.5 text-white/80" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent px-4 pb-4 pt-16">
+          {item.caption && (
+            <p className="text-white text-xs font-semibold uppercase tracking-wider leading-snug line-clamp-2">
+              {item.caption}
+            </p>
+          )}
+          <p className="text-white/80 text-xs mt-2">Customer video</p>
+        </div>
+      </div>
+    </article>
   );
 }

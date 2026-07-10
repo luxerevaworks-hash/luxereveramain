@@ -159,7 +159,7 @@ export default function AdminSettingsPage() {
       ...prev,
       ugc: {
         ...prev.ugc,
-        items: [...(prev.ugc.items || []), { id: nanoid(), image: "", link: "", caption: "" }],
+        items: [...(prev.ugc.items || []), { id: nanoid(), image: "", video: "", link: "", caption: "" }],
       },
     }));
   }
@@ -181,16 +181,17 @@ export default function AdminSettingsPage() {
     }));
   }
 
-  async function handleUgcImageUpload(id, file) {
+  async function handleUgcMediaUpload(id, file) {
     if (!file) return;
     setUploading(true);
     try {
       const url = await uploadToStorage(file, "ugc");
-      updateUgcItem(id, "image", url);
-      toast.success("Image uploaded");
+      const field = file.type.startsWith("video/") ? "video" : "image";
+      updateUgcItem(id, field, url);
+      toast.success(`${field === "video" ? "Video" : "Image"} uploaded`);
     } catch (err) {
       console.error(err);
-      toast.error("Image upload failed");
+      toast.error("Media upload failed");
     } finally {
       setUploading(false);
     }
@@ -435,21 +436,24 @@ export default function AdminSettingsPage() {
               {(form.ugc.items || []).map((item, idx) => (
                 <div key={item.id} className="border border-gold/30 rounded-lg p-4 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-widest2 text-sage">Image {idx + 1}</span>
+                    <span className="text-xs uppercase tracking-widest2 text-sage">Reel {idx + 1}</span>
                     <button type="button" onClick={() => removeUgcItem(item.id)} className="text-xs text-rosewood">
                       Remove
                     </button>
                   </div>
                   <input
                     type="file"
-                    accept="image/*"
-                    onChange={(e) => handleUgcImageUpload(item.id, e.target.files?.[0])}
+                    accept="image/*,video/mp4,video/webm,video/quicktime"
+                    onChange={(e) => handleUgcMediaUpload(item.id, e.target.files?.[0])}
                     className="block text-sm"
                   />
                   {item.image && (
                     <div className="relative aspect-square max-w-[140px] rounded-lg overflow-hidden border border-gold/30 bg-cream">
                       <img src={item.image} alt={`UGC ${idx + 1}`} className="w-full h-full object-cover" />
                     </div>
+                  )}
+                  {item.video && (
+                    <video src={item.video} controls muted playsInline className="w-full max-w-[220px] aspect-[9/16] rounded-lg border border-gold/30 bg-black object-cover" />
                   )}
                   <input
                     placeholder="Link (optional, e.g. Instagram post URL)"

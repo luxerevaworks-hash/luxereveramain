@@ -22,7 +22,8 @@ export default function ProductCard({ product }) {
   const [hovered, setHovered] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
-  const soldOut = (product.stock ?? 0) <= 0;
+  // Products created before stock tracking are still available to purchase.
+  const soldOut = product.stock !== undefined && product.stock !== null && Number(product.stock) <= 0;
   const inWishlist = isInWishlist?.(product.id);
   const discountPercent = getDiscountPercent(product);
   const primaryImage = product.images?.[0];
@@ -154,18 +155,18 @@ export default function ProductCard({ product }) {
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-stretch gap-2 mt-3">
             <button
               onClick={handleAdd}
               disabled={soldOut}
-              className="flex-1 border border-brown-dark text-brown-dark hover:bg-brown-dark hover:text-cream disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-brown-dark rounded-full py-2 text-[10px] uppercase tracking-widest2 font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 border border-brown-dark text-brown-dark hover:bg-brown-dark hover:text-cream disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-brown-dark rounded-lg px-1 py-2.5 text-[10px] leading-tight uppercase tracking-wide font-semibold flex items-center justify-center text-center gap-1 transition-colors"
             >
-              <FiShoppingBag className="w-3.5 h-3.5" /> Add to Bag
+              <FiShoppingBag className="w-3.5 h-3.5 shrink-0" /> <span>Add to Bag</span>
             </button>
             <button
               onClick={handleQuickBuy}
               disabled={soldOut}
-              className="flex-1 bg-brown-dark text-cream hover:bg-brown disabled:opacity-30 rounded-full py-2 text-[10px] uppercase tracking-widest2 font-semibold transition-colors"
+              className="flex-1 bg-brown-dark text-cream hover:bg-brown disabled:opacity-30 rounded-lg px-1 py-2.5 text-[10px] leading-tight uppercase tracking-wide font-semibold flex items-center justify-center text-center transition-colors"
             >
               Quick Buy
             </button>
