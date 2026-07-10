@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
@@ -22,12 +23,14 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <CartProvider>
-            <AnalyticsTracker />
-            <PresenceTracker />
-            <Navbar />
-            <main className="min-h-[60vh]">{children}</main>
-            <Footer />
-            <Toaster position="bottom-center" />
+            <WishlistProvider>
+              <AnalyticsTracker />
+              <PresenceTracker />
+              <Navbar />
+              <main className="min-h-[60vh]">{children}</main>
+              <Footer />
+              <Toaster position="bottom-center" />
+            </WishlistProvider>
           </CartProvider>
         </AuthProvider>
       </body>

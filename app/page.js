@@ -102,15 +102,15 @@ export default function HomePage() {
 
       {banner && (
         <section className="container-page py-6">
-          <Link href={banner.link || "/products"} className="block relative aspect-[2/1] rounded-lg overflow-hidden border border-gold/30">
-            <Image src={banner.image} alt="Promotion" fill className="object-cover" />
+          <Link href={banner.link || "/products"} className="block relative aspect-[12/5] rounded-lg overflow-hidden border border-gold/30 bg-cream">
+            <Image src={banner.image} alt="Promotion" fill className="object-contain" />
           </Link>
         </section>
       )}
 
       <section className="container-page py-12">
         <h2 className="text-center uppercase tracking-widest2 text-brown-dark text-xl mb-8">
-          Featured Products
+          Most Loved by Customers
         </h2>
         {loading ? (
           <p className="text-center text-brown/60">Loading products...</p>

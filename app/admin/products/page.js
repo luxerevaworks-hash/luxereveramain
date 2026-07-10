@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import AdminGuard from "@/components/AdminGuard";
 import AdminLayout from "@/components/AdminLayout";
 import { formatPrice } from "@/lib/utils";
+import { getBadgeConfig } from "@/lib/badges";
 import toast from "react-hot-toast";
 
 export default function AdminProductsPage() {
@@ -108,6 +109,7 @@ export default function AdminProductsPage() {
                   <th className="p-4">SKU</th>
                   <th className="p-4">Category</th>
                   <th className="p-4">Price</th>
+                  <th className="p-4">Badges</th>
                   <th className="p-4">Stock</th>
                   <th className="p-4">Status</th>
                   <th className="p-4"></th>
@@ -139,7 +141,33 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-4">{p.sku || "-"}</td>
                     <td className="p-4 capitalize">{p.category}</td>
-                    <td className="p-4">{formatPrice(p.price)}</td>
+                    <td className="p-4">
+                      {formatPrice(p.price)}
+                      {p.originalPrice > p.price && (
+                        <span className="block text-xs text-brown/40 line-through">
+                          {formatPrice(p.originalPrice)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-wrap gap-1 max-w-40">
+                        {(p.badges || []).map((key) => {
+                          const badge = getBadgeConfig(key);
+                          if (!badge) return null;
+                          return (
+                            <span
+                              key={key}
+                              className={`${badge.className} text-white text-[9px] font-semibold uppercase tracking-widest2 px-2 py-0.5 rounded-full`}
+                            >
+                              {badge.label}
+                            </span>
+                          );
+                        })}
+                        {(!p.badges || p.badges.length === 0) && (
+                          <span className="text-xs text-brown/40">-</span>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-4">{p.stock}</td>
                     <td className="p-4 capitalize">{p.status || "active"}</td>
                     <td className="p-4 text-right space-x-3 whitespace-nowrap">

@@ -13,6 +13,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
+import { BADGE_OPTIONS } from "@/lib/badges";
 
 const CATEGORIES = ["earrings", "necklaces", "bracelets", "rings"];
 const STATUSES = ["active", "draft", "archived"];
@@ -27,6 +28,10 @@ export default function ProductForm({ initialData = null }) {
     sku: initialData?.sku || "",
     status: initialData?.status || "active",
     price: initialData ? initialData.price / 100 : "",
+    originalPrice: initialData?.originalPrice ? initialData.originalPrice / 100 : "",
+    rating: initialData?.rating ?? "",
+    reviewCount: initialData?.reviewCount ?? "",
+    badges: initialData?.badges || [],
     stock: initialData?.stock ?? 0,
     lowStockThreshold: initialData?.lowStockThreshold ?? 5,
     description: initialData?.description || "",
@@ -122,6 +127,15 @@ export default function ProductForm({ initialData = null }) {
     setForm((f) => ({ ...f, variants: f.variants.filter((v) => v.id !== id) }));
   }
 
+  function toggleBadge(key) {
+    setForm((f) => ({
+      ...f,
+      badges: f.badges.includes(key)
+        ? f.badges.filter((b) => b !== key)
+        : [...f.badges, key],
+    }));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
@@ -132,6 +146,12 @@ export default function ProductForm({ initialData = null }) {
         sku: form.sku,
         status: form.status,
         price: Math.round(parseFloat(form.price) * 100),
+        originalPrice: form.originalPrice
+          ? Math.round(parseFloat(form.originalPrice) * 100)
+          : null,
+        rating: form.rating ? parseFloat(form.rating) : null,
+        reviewCount: form.reviewCount ? parseInt(form.reviewCount, 10) : null,
+        badges: form.badges,
         stock: parseInt(form.stock, 10) || 0,
         lowStockThreshold: parseInt(form.lowStockThreshold, 10) || 0,
         description: form.description,
@@ -179,6 +199,48 @@ export default function ProductForm({ initialData = null }) {
           <div>
             <label className="text-xs uppercase tracking-widest2 text-brown-dark">Price (INR)</label>
             <input type="number" name="price" min="0" step="0.01" value={form.price} onChange={handleChange} required className="input-field mt-1" />
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs uppercase tracking-widest2 text-brown-dark">Original Price / MRP (optional)</label>
+            <input type="number" name="originalPrice" min="0" step="0.01" value={form.originalPrice} onChange={handleChange} placeholder="Leave blank if no discount" className="input-field mt-1" />
+            <p className="text-[11px] text-brown/50 mt-1">Set higher than Price to show a strikethrough MRP, % off badge and "you save" amount.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs uppercase tracking-widest2 text-brown-dark">Rating (0-5)</label>
+              <input type="number" name="rating" min="0" max="5" step="0.1" value={form.rating} onChange={handleChange} className="input-field mt-1" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-widest2 text-brown-dark">Review Count</label>
+              <input type="number" name="reviewCount" min="0" value={form.reviewCount} onChange={handleChange} className="input-field mt-1" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-xs uppercase tracking-widest2 text-brown-dark">Badges</label>
+          <p className="text-[11px] text-brown/50 mt-1 mb-2">Select any badges to display on this product's card. Multiple badges are supported.</p>
+          <div className="flex flex-wrap gap-2">
+            {BADGE_OPTIONS.map((badge) => {
+              const active = form.badges.includes(badge.key);
+              return (
+                <button
+                  key={badge.key}
+                  type="button"
+                  onClick={() => toggleBadge(badge.key)}
+                  className={`text-[11px] font-semibold uppercase tracking-widest2 px-3 py-1.5 rounded-full border transition-colors ${
+                    active
+                      ? `${badge.className} text-white border-transparent`
+                      : "border-gold/40 text-brown-dark hover:border-brown-dark"
+                  }`}
+                >
+                  {badge.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

@@ -290,13 +290,13 @@ export default function AdminSettingsPage() {
 
           <div className="border-t border-gold/30 pt-4">
             <label className="text-xs uppercase tracking-widest2 text-brown-dark">
-              Homepage Promo Banner (1200 × 600px)
+              Homepage Promo Banner (1200 × 500px)
             </label>
             <input type="file" accept="image/*" onChange={handleBannerUpload} className="mt-2 block text-sm" />
             {uploading && <p className="text-xs text-brown/60 mt-1">Uploading...</p>}
             {form.bannerImage && (
-              <div className="relative mt-3 aspect-[2/1] max-w-md rounded-lg overflow-hidden border border-gold/30 bg-cream">
-                <img src={form.bannerImage} alt="Promo banner" className="w-full h-full object-cover" />
+              <div className="relative mt-3 aspect-[12/5] max-w-md rounded-lg overflow-hidden border border-gold/30 bg-cream">
+                <img src={form.bannerImage} alt="Promo banner" className="w-full h-full object-contain" />
               </div>
             )}
             <label className="text-xs uppercase tracking-widest2 text-brown-dark block mt-3">

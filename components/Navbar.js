@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FiShoppingBag, FiUser, FiMenu, FiX, FiSearch } from "react-icons/fi";
+import { FiShoppingBag, FiUser, FiMenu, FiX, FiSearch, FiHeart } from "react-icons/fi";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
 
@@ -19,6 +20,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { itemCount } = useCart();
+  const { itemCount: wishlistCount } = useWishlist();
   const { user, isAdmin } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -79,6 +81,14 @@ export default function Navbar() {
               Admin
             </Link>
           )}
+          <Link href="/wishlist" aria-label="Wishlist" className="relative">
+            <FiHeart className="w-4 h-4 text-brown-dark" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-rosewood text-cream text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
           <Link href="/cart" aria-label="Cart" className="relative">
             <FiShoppingBag className="w-4 h-4 text-brown-dark" />
             {itemCount > 0 && (
