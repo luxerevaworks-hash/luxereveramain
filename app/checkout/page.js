@@ -7,6 +7,7 @@ import { useCart, GIFT_WRAP_FEE } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import GiftWrapOption from "@/components/GiftWrapOption";
+import { fbqTrack } from "@/components/MetaPixel";
 import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
@@ -53,6 +54,18 @@ export default function CheckoutPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
+  function trackPurchase(orderId) {
+    fbqTrack("Purchase", {
+      value: total / 100,
+      currency: "INR",
+      content_type: "product",
+      content_ids: items.map((i) => i.id),
+      contents: items.map((i) => ({ id: i.id, quantity: i.qty, item_price: i.price / 100 })),
+      num_items: items.reduce((sum, i) => sum + i.qty, 0),
+      order_id: orderId,
+    });
+  }
+
   async function handlePay(e) {
     e.preventDefault();
     setSubmitting(true);
@@ -73,6 +86,7 @@ export default function CheckoutPage() {
         const codData = await codRes.json();
         if (!codData?.success) throw new Error(codData?.error || "Could not place order");
 
+        trackPurchase(codData.orderId);
         clearCart();
         toast.success("Order placed! Pay on delivery.");
         router.push("/account");
@@ -132,6 +146,7 @@ export default function CheckoutPage() {
             const verifyData = await verifyRes.json();
 
             if (verifyData?.success) {
+              trackPurchase(verifyData.orderId);
               clearCart();
               toast.success("Payment successful! Order placed.");
               router.push("/account");

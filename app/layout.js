@@ -5,6 +5,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import MetaPixel from "@/components/MetaPixel";
 import PresenceTracker from "@/components/PresenceTracker";
 import { Toaster } from "react-hot-toast";
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
           <CartProvider>
             <WishlistProvider>
               <AnalyticsTracker />
+              <MetaPixel />
               <PresenceTracker />
               <Navbar />
               <main className="min-h-[60vh]">{children}</main>
