@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import { FiCheckCircle } from "react-icons/fi";
 import { useCart, GIFT_WRAP_FEE } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
@@ -12,7 +14,7 @@ import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart, hydrated, giftWrap, setGiftWrap } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -26,6 +28,7 @@ export default function CheckoutPage() {
   });
   const [paymentMethod, setPaymentMethod] = useState("prepaid");
   const [submitting, setSubmitting] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState(null);
 
   const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
 
@@ -38,6 +41,63 @@ export default function CheckoutPage() {
       }));
     }
   }, [user]);
+
+  if (placedOrder) {
+    return (
+      <div className="container-page py-16 max-w-xl mx-auto text-center">
+        <FiCheckCircle className="w-14 h-14 text-sage mx-auto mb-5" />
+        <h1 className="text-2xl uppercase tracking-widest2 text-brown-dark mb-2">
+          Order Placed!
+        </h1>
+        <p className="text-brown/70 mb-1">Thank you — your order has been placed successfully.</p>
+        <p className="text-brown/70 mb-8">
+          Order ID: <span className="font-semibold text-brown-dark">#{placedOrder.orderId.slice(0, 8)}</span>
+        </p>
+
+        <div className="bg-white border border-gold/30 rounded-xl p-6 text-left mb-8">
+          <ul className="space-y-2 mb-4 text-sm">
+            {placedOrder.items.map((item) => (
+              <li key={item.key} className="flex justify-between">
+                <span className="text-brown/80">
+                  {item.qty} × {item.name}
+                </span>
+                <span>{formatPrice(item.price * item.qty)}</span>
+              </li>
+            ))}
+            {placedOrder.giftWrap && (
+              <li className="flex justify-between">
+                <span className="text-brown/80">Gift Wrap</span>
+                <span>{formatPrice(GIFT_WRAP_FEE)}</span>
+              </li>
+            )}
+          </ul>
+          <div className="border-t border-gold/30 pt-4 flex justify-between font-semibold text-brown-dark">
+            <span>Total</span>
+            <span>{formatPrice(placedOrder.total)}</span>
+          </div>
+          <p className="text-xs text-brown/60 mt-4">
+            {placedOrder.paymentMethod === "cod" ? "Pay on delivery." : "Paid via Razorpay."}
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+          <a href="/products" className="btn-primary">Continue Shopping</a>
+          {user ? (
+            <a href="/account" className="btn-outline">View Order History</a>
+          ) : (
+            <Link href="/signup" className="btn-outline">Create an Account</Link>
+          )}
+        </div>
+
+        {!user && (
+          <p className="text-sm text-brown/70">
+            Already have an account?{" "}
+            <Link href="/login" className="text-rosewood font-semibold">Sign in</Link> to track this order.
+          </p>
+        )}
+      </div>
+    );
+  }
 
   if (hydrated && items.length === 0) {
     return (
@@ -68,6 +128,12 @@ export default function CheckoutPage() {
 
   async function handlePay(e) {
     e.preventDefault();
+
+    if (!user) {
+      router.push("/login?redirect=%2Fcheckout");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -87,9 +153,9 @@ export default function CheckoutPage() {
         if (!codData?.success) throw new Error(codData?.error || "Could not place order");
 
         trackPurchase(codData.orderId);
+        setPlacedOrder({ orderId: codData.orderId, items, total, giftWrap, paymentMethod: "cod" });
         clearCart();
         toast.success("Order placed! Pay on delivery.");
-        router.push("/account");
         return;
       }
 
@@ -147,9 +213,9 @@ export default function CheckoutPage() {
 
             if (verifyData?.success) {
               trackPurchase(verifyData.orderId);
+              setPlacedOrder({ orderId: verifyData.orderId, items, total, giftWrap, paymentMethod: "prepaid" });
               clearCart();
               toast.success("Payment successful! Order placed.");
-              router.push("/account");
             } else {
               toast.error(verifyData?.error || "Payment verification failed.");
               setSubmitting(false);
@@ -177,6 +243,13 @@ export default function CheckoutPage() {
       console.error(err);
       toast.error(err.message || "Something went wrong");
       setSubmitting(false);
+    }
+  }
+
+  function requireAccountForCheckout(e) {
+    if (!user && !authLoading) {
+      e.preventDefault();
+      router.push("/login?redirect=%2Fcheckout");
     }
   }
 
@@ -236,7 +309,12 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <button type="submit" disabled={submitting} className="btn-primary w-full mt-4">
+          <button
+            type="submit"
+            onClick={requireAccountForCheckout}
+            disabled={submitting || authLoading}
+            className="btn-primary w-full mt-4"
+          >
             {submitting
               ? "Processing…"
               : paymentMethod === "cod"

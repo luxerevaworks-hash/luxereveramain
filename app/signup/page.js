@@ -1,18 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
-export default function SignupPage() {
-  const { signup } = useAuth();
+function SignupPage() {
+  const { signup, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const requestedDestination = searchParams.get("redirect");
+  const destination =
+    requestedDestination?.startsWith("/") && !requestedDestination.startsWith("//")
+      ? requestedDestination
+      : "/account";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -20,7 +26,20 @@ export default function SignupPage() {
     try {
       await signup(name, email, password);
       toast.success("Account created!");
-      router.push("/account");
+      router.replace(destination);
+    } catch (err) {
+      toast.error(err.message.replace("Firebase: ", ""));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogle() {
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      toast.success("Welcome!");
+      router.replace(destination);
     } catch (err) {
       toast.error(err.message.replace("Firebase: ", ""));
     } finally {
@@ -64,12 +83,30 @@ export default function SignupPage() {
         </button>
       </form>
 
+      <div className="flex items-center gap-3 my-6">
+        <div className="flex-1 h-px bg-gold/40" />
+        <span className="text-xs text-brown/60">OR</span>
+        <div className="flex-1 h-px bg-gold/40" />
+      </div>
+
+      <button onClick={handleGoogle} disabled={loading} className="btn-outline w-full">
+        Continue with Google
+      </button>
+
       <p className="text-center text-sm text-brown/70 mt-6">
         Already have an account?{" "}
-        <Link href="/login" className="text-rosewood font-semibold">
+        <Link href={`/login?redirect=${encodeURIComponent(destination)}`} className="text-rosewood font-semibold">
           Sign in
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function SignupPageWithSuspense() {
+  return (
+    <Suspense fallback={null}>
+      <SignupPage />
+    </Suspense>
   );
 }

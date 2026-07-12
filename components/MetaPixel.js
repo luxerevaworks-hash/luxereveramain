@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
@@ -15,16 +15,23 @@ export function fbqTrack(event, data) {
 function PageViewTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const previousUrl = useRef(null);
+  const currentUrl = `${pathname}?${searchParams.toString()}`;
 
   useEffect(() => {
-    fbqTrack("PageView");
-  }, [pathname, searchParams]);
+    if (previousUrl.current && previousUrl.current !== currentUrl) {
+      fbqTrack("PageView");
+    }
+    previousUrl.current = currentUrl;
+  }, [currentUrl]);
 
   return null;
 }
 
 export default function MetaPixel() {
   if (!PIXEL_ID) return null;
+
+  const pixelId = JSON.stringify(PIXEL_ID);
 
   return (
     <>
@@ -38,7 +45,8 @@ export default function MetaPixel() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${PIXEL_ID}');
+          fbq('init', ${pixelId});
+          fbq('track', 'PageView');
         `}
       </Script>
       <noscript>

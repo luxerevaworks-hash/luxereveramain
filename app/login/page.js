@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
-export default function LoginPage() {
+function LoginPage() {
   const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const requestedDestination = searchParams.get("redirect");
+  const destination =
+    requestedDestination?.startsWith("/") && !requestedDestination.startsWith("//")
+      ? requestedDestination
+      : "/account";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -19,7 +25,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       toast.success("Welcome back!");
-      router.push("/account");
+      router.replace(destination);
     } catch (err) {
       toast.error(err.message.replace("Firebase: ", ""));
     } finally {
@@ -31,7 +37,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      router.push("/account");
+      router.replace(destination);
     } catch (err) {
       toast.error(err.message.replace("Firebase: ", ""));
     } finally {
@@ -78,10 +84,18 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-brown/70 mt-6">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-rosewood font-semibold">
+        <Link href={`/signup?redirect=${encodeURIComponent(destination)}`} className="text-rosewood font-semibold">
           Create one
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPageWithSuspense() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPage />
+    </Suspense>
   );
 }
