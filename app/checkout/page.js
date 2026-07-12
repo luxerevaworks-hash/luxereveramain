@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
@@ -29,6 +29,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("prepaid");
   const [submitting, setSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
+  const checkoutTracked = useRef(false);
 
   const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
 
@@ -41,6 +42,24 @@ export default function CheckoutPage() {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!hydrated || items.length === 0 || checkoutTracked.current) return;
+
+    checkoutTracked.current = true;
+    fbqTrack("InitiateCheckout", {
+      content_ids: items.map((item) => item.id),
+      content_type: "product",
+      contents: items.map((item) => ({
+        id: item.id,
+        quantity: item.qty,
+        item_price: item.price / 100,
+      })),
+      currency: "INR",
+      num_items: items.reduce((sum, item) => sum + item.qty, 0),
+      value: total / 100,
+    });
+  }, [hydrated, items, total]);
 
   if (placedOrder) {
     return (

@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { fbqTrack } from "@/components/MetaPixel";
 import toast from "react-hot-toast";
 
 function SignupPage() {
@@ -25,6 +26,7 @@ function SignupPage() {
     setLoading(true);
     try {
       await signup(name, email, password);
+      fbqTrack("Lead", { content_name: "Account Registration" });
       toast.success("Account created!");
       router.replace(destination);
     } catch (err) {
@@ -38,6 +40,7 @@ function SignupPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
+      fbqTrack("Lead", { content_name: "Account Registration" });
       toast.success("Welcome!");
       router.replace(destination);
     } catch (err) {

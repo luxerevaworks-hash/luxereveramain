@@ -7,6 +7,7 @@ import Link from "next/link";
 import { doc, getDoc, collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useCart } from "@/context/CartContext";
+import { fbqTrack } from "@/components/MetaPixel";
 import { formatPrice, getEstimatedDelivery } from "@/lib/utils";
 import { sampleProducts } from "@/lib/sampleProducts";
 import Logo from "@/components/Logo";
@@ -97,6 +98,19 @@ export default function ProductDetailPage() {
     }
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (!product) return;
+
+    fbqTrack("ViewContent", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      contents: [{ id: product.id, quantity: 1, item_price: product.price / 100 }],
+      currency: "INR",
+      value: product.price / 100,
+    });
+  }, [product]);
 
   if (loading) {
     return (

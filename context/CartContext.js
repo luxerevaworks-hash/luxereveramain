@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { fbqTrack } from "@/components/MetaPixel";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "luxereva_cart";
@@ -38,6 +39,15 @@ export function CartProvider({ children }) {
   }, [items, giftWrap, hydrated]);
 
   function addItem(product, qty = 1, variant = null) {
+    fbqTrack("AddToCart", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      contents: [{ id: product.id, quantity: qty, item_price: product.price / 100 }],
+      currency: "INR",
+      value: (product.price * qty) / 100,
+    });
+
     setItems((prev) => {
       const key = `${product.id}-${variant?.id || "default"}`;
       const existing = prev.find((i) => i.key === key);
