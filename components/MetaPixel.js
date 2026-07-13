@@ -4,12 +4,18 @@ import { Suspense, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "910455641823342";
 
 export function fbqTrack(event, data) {
-  if (typeof window !== "undefined" && typeof window.fbq === "function") {
-    window.fbq("track", event, data);
+  if (typeof window === "undefined") return;
+
+  if (typeof window.fbq === "function") {
+    window.fbq("track", event, data || {});
+    return;
   }
+
+  window.luxerevaFbqQueue = window.luxerevaFbqQueue || [];
+  window.luxerevaFbqQueue.push({ event, data: data || {} });
 }
 
 function PageViewTracker() {
@@ -29,9 +35,7 @@ function PageViewTracker() {
 }
 
 export default function MetaPixel() {
-  if (!PIXEL_ID) return null;
-
-  const pixelId = JSON.stringify(PIXEL_ID);
+  const pixelId = JSON.stringify(META_PIXEL_ID);
 
   return (
     <>
@@ -47,6 +51,10 @@ export default function MetaPixel() {
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', ${pixelId});
           fbq('track', 'PageView');
+          (window.luxerevaFbqQueue || []).forEach(function(item) {
+            fbq('track', item.event, item.data || {});
+          });
+          window.luxerevaFbqQueue = [];
         `}
       </Script>
       <noscript>
@@ -55,7 +63,7 @@ export default function MetaPixel() {
           height="1"
           width="1"
           style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
           alt=""
         />
       </noscript>
