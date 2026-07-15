@@ -50,6 +50,7 @@ export async function POST(req) {
     // 2. Save order to Firestore
     const orderRef = await adminDb.collection("orders").add({
       userId: pendingOrder.userId || null,
+      userEmail: pendingOrder.userEmail || pendingOrder.customer?.email || null,
       customer: pendingOrder.customer,
       items: pendingOrder.items,
       giftWrap: !!pendingOrder.giftWrap,

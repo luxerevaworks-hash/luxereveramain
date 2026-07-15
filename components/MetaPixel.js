@@ -6,28 +6,45 @@ import Script from "next/script";
 
 export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "910455641823342";
 
+export function getCurrentEventUrl() {
+  if (typeof window === "undefined") return undefined;
+  return window.location.href;
+}
+
+function withEventUrl(data = {}) {
+  const eventUrl = getCurrentEventUrl();
+  return eventUrl ? { ...data, event_source_url: eventUrl } : data;
+}
+
 export function fbqTrack(event, data) {
   if (typeof window === "undefined") return;
 
+  const payload = withEventUrl(data);
+
   if (typeof window.fbq === "function") {
-    window.fbq("track", event, data || {});
+    window.fbq("track", event, payload);
     return;
   }
 
   window.luxerevaFbqQueue = window.luxerevaFbqQueue || [];
-  window.luxerevaFbqQueue.push({ event, data: data || {} });
+  window.luxerevaFbqQueue.push({ event, data: payload });
 }
 
 function PageViewTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const previousUrl = useRef(null);
-  const currentUrl = `${pathname}?${searchParams.toString()}`;
+  const queryString = searchParams.toString();
+  const currentUrl = queryString ? `${pathname}?${queryString}` : pathname;
 
   useEffect(() => {
-    if (previousUrl.current && previousUrl.current !== currentUrl) {
-      fbqTrack("PageView");
-    }
+    if (previousUrl.current === currentUrl) return;
+
+    const fullUrl = window.location.href;
+    if (window.luxerevaLastPageViewUrl === fullUrl) return;
+
+    window.luxerevaLastPageViewUrl = fullUrl;
+    fbqTrack("PageView", { event_source_url: fullUrl });
     previousUrl.current = currentUrl;
   }, [currentUrl]);
 
@@ -50,7 +67,6 @@ export default function MetaPixel() {
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', ${pixelId});
-          fbq('track', 'PageView');
           (window.luxerevaFbqQueue || []).forEach(function(item) {
             fbq('track', item.event, item.data || {});
           });

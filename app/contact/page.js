@@ -27,7 +27,12 @@ export default function ContactPage() {
         <div className="bg-white border border-gold/30 rounded-lg p-6 h-fit">
           <h2 className="text-xl font-light text-brown-dark">Customer care</h2>
           <div className="mt-5 space-y-4 text-sm text-brown/75">
-            <p><span className="font-semibold text-brown-dark">Email:</span> hello@luxereva.com</p>
+            <p>
+              <span className="font-semibold text-brown-dark">Email:</span>{" "}
+              <a href="mailto:info@luxereva.com" className="text-rosewood">
+                info@luxereva.com
+              </a>
+            </p>
             <p><span className="font-semibold text-brown-dark">Hours:</span> Monday to Saturday, 10 AM to 6 PM</p>
             <p><span className="font-semibold text-brown-dark">Orders:</span> Use your account page to check order details.</p>
           </div>

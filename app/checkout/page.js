@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { FiCheckCircle } from "react-icons/fi";
 import { useCart, GIFT_WRAP_FEE } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import GiftWrapOption from "@/components/GiftWrapOption";
 import { fbqTrack } from "@/components/MetaPixel";
 import toast from "react-hot-toast";
+
+const SUCCESS_STORAGE_KEY = "luxereva_last_order";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart, hydrated, giftWrap, setGiftWrap } = useCart();
@@ -28,7 +28,6 @@ export default function CheckoutPage() {
   });
   const [paymentMethod, setPaymentMethod] = useState("prepaid");
   const [submitting, setSubmitting] = useState(false);
-  const [placedOrder, setPlacedOrder] = useState(null);
   const checkoutTracked = useRef(false);
 
   const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
@@ -61,63 +60,6 @@ export default function CheckoutPage() {
     });
   }, [hydrated, items, total]);
 
-  if (placedOrder) {
-    return (
-      <div className="container-page py-16 max-w-xl mx-auto text-center">
-        <FiCheckCircle className="w-14 h-14 text-sage mx-auto mb-5" />
-        <h1 className="text-2xl uppercase tracking-widest2 text-brown-dark mb-2">
-          Order Placed!
-        </h1>
-        <p className="text-brown/70 mb-1">Thank you — your order has been placed successfully.</p>
-        <p className="text-brown/70 mb-8">
-          Order ID: <span className="font-semibold text-brown-dark">#{placedOrder.orderId.slice(0, 8)}</span>
-        </p>
-
-        <div className="bg-white border border-gold/30 rounded-xl p-6 text-left mb-8">
-          <ul className="space-y-2 mb-4 text-sm">
-            {placedOrder.items.map((item) => (
-              <li key={item.key} className="flex justify-between">
-                <span className="text-brown/80">
-                  {item.qty} × {item.name}
-                </span>
-                <span>{formatPrice(item.price * item.qty)}</span>
-              </li>
-            ))}
-            {placedOrder.giftWrap && (
-              <li className="flex justify-between">
-                <span className="text-brown/80">Gift Wrap</span>
-                <span>{formatPrice(GIFT_WRAP_FEE)}</span>
-              </li>
-            )}
-          </ul>
-          <div className="border-t border-gold/30 pt-4 flex justify-between font-semibold text-brown-dark">
-            <span>Total</span>
-            <span>{formatPrice(placedOrder.total)}</span>
-          </div>
-          <p className="text-xs text-brown/60 mt-4">
-            {placedOrder.paymentMethod === "cod" ? "Pay on delivery." : "Paid via Razorpay."}
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-          <a href="/products" className="btn-primary">Continue Shopping</a>
-          {user ? (
-            <a href="/account" className="btn-outline">View Order History</a>
-          ) : (
-            <Link href="/signup" className="btn-outline">Create an Account</Link>
-          )}
-        </div>
-
-        {!user && (
-          <p className="text-sm text-brown/70">
-            Already have an account?{" "}
-            <Link href="/login" className="text-rosewood font-semibold">Sign in</Link> to track this order.
-          </p>
-        )}
-      </div>
-    );
-  }
-
   if (hydrated && items.length === 0) {
     return (
       <div className="container-page py-20 text-center">
@@ -133,16 +75,17 @@ export default function CheckoutPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function trackPurchase(orderId) {
-    fbqTrack("Purchase", {
-      value: total / 100,
-      currency: "INR",
-      content_type: "product",
-      content_ids: items.map((i) => i.id),
-      contents: items.map((i) => ({ id: i.id, quantity: i.qty, item_price: i.price / 100 })),
-      num_items: items.reduce((sum, i) => sum + i.qty, 0),
-      order_id: orderId,
-    });
+  function saveOrderForSuccessPage(orderId, method) {
+    sessionStorage.setItem(
+      SUCCESS_STORAGE_KEY,
+      JSON.stringify({
+        orderId,
+        items,
+        total,
+        giftWrap,
+        paymentMethod: method,
+      })
+    );
   }
 
   async function handlePay(e) {
@@ -171,10 +114,10 @@ export default function CheckoutPage() {
         const codData = await codRes.json();
         if (!codData?.success) throw new Error(codData?.error || "Could not place order");
 
-        trackPurchase(codData.orderId);
-        setPlacedOrder({ orderId: codData.orderId, items, total, giftWrap, paymentMethod: "cod" });
+        saveOrderForSuccessPage(codData.orderId, "cod");
         clearCart();
         toast.success("Order placed! Pay on delivery.");
+        router.push(`/order-success?order_id=${encodeURIComponent(codData.orderId)}`);
         return;
       }
 
@@ -231,10 +174,10 @@ export default function CheckoutPage() {
             const verifyData = await verifyRes.json();
 
             if (verifyData?.success) {
-              trackPurchase(verifyData.orderId);
-              setPlacedOrder({ orderId: verifyData.orderId, items, total, giftWrap, paymentMethod: "prepaid" });
+              saveOrderForSuccessPage(verifyData.orderId, "prepaid");
               clearCart();
               toast.success("Payment successful! Order placed.");
+              router.push(`/order-success?order_id=${encodeURIComponent(verifyData.orderId)}`);
             } else {
               toast.error(verifyData?.error || "Payment verification failed.");
               setSubmitting(false);

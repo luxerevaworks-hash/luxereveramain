@@ -2,50 +2,39 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { FiMaximize2, FiPause, FiPlay } from "react-icons/fi";
+import { FiMaximize2, FiPause, FiPlay, FiX } from "react-icons/fi";
 
-const DEFAULT_TITLE = "Loved By Thousands";
+const DEFAULT_TITLE = "Luxereva Look Book";
 const DEFAULT_SUBTITLE =
-  "Real customer videos, unboxings, and first impressions from the Luxereva community.";
+  "Real customer videos and styling moments from the Luxereva community.";
 const INSTAGRAM_PROFILE = "https://www.instagram.com/luxereva/";
 const DEFAULT_ITEMS = [
   {
     id: "review-reel-1",
-    image: "/images/hero-earrings.webp",
-    link: "https://www.instagram.com/reel/DaLF9EGTm6T/?igsh=MWFvNjl2aXBtZGwyNg==",
+    video: "/videos/luxereva-reel-1.mp4",
     caption: "Review reel",
   },
   {
     id: "review-reel-2",
-    image: "/images/hero-necklaces.webp",
-    link: "https://www.instagram.com/reel/DZ6_01qgvW1/?igsh=eXRjNmx5ZGZjOTlq",
+    video: "/videos/luxereva-reel-2.mp4",
     caption: "Customer styling reel",
   },
   {
     id: "review-reel-3",
-    image: "/images/hero-monsoon.webp",
-    link: "https://www.instagram.com/reel/DaNi97aPmuh/?igsh=MTJjc2l1ZzUyanZwbg==",
+    video: "/videos/luxereva-reel-3.mp4",
     caption: "Loved by customers",
   },
   {
     id: "review-reel-4",
-    image: "/images/Necklace.webp",
-    link: "https://www.instagram.com/reel/DYpZIDOywJf/?igsh=MmgzMWpzcm9jdTl4",
+    video: "/videos/luxereva-reel-4.mp4",
     caption: "Everyday Luxereva look",
-  },
-  {
-    id: "review-reel-5",
-    image: "/images/hero-photo.webp",
-    link: "https://www.instagram.com/reel/DaS9dVeMVih/?igsh=MWhnOXU2dGJoYXBtYw==",
-    caption: "Styled by our community",
   },
 ];
 
 export default function UgcSection({ ugc }) {
-  const customItems = (ugc?.items || []).filter(
-    (item) => item.image || item.video || item.link
-  );
-  const items = customItems.length ? customItems : DEFAULT_ITEMS;
+  const customItems = (ugc?.items || []).filter((item) => item.video);
+  const items = customItems.length ? [...DEFAULT_ITEMS, ...customItems] : DEFAULT_ITEMS;
+  const [activeVideo, setActiveVideo] = useState(null);
 
   return (
     <section className="bg-white py-14 md:py-20">
@@ -62,6 +51,7 @@ export default function UgcSection({ ugc }) {
             <ReelCard
               key={item.id}
               item={item}
+              onOpen={() => setActiveVideo(item)}
             />
           ))}
         </div>
@@ -77,15 +67,17 @@ export default function UgcSection({ ugc }) {
           </a>
         </div>
       </div>
+      {activeVideo && <ReelModal item={activeVideo} onClose={() => setActiveVideo(null)} />}
     </section>
   );
 }
 
-function ReelCard({ item }) {
+function ReelCard({ item, onOpen }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
 
-  function togglePlayback() {
+  function togglePlayback(event) {
+    event.stopPropagation();
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
       videoRef.current.play();
@@ -98,7 +90,12 @@ function ReelCard({ item }) {
 
   return (
     <article className="shrink-0 snap-start w-[185px] sm:w-[215px] md:w-[235px]">
-      <div className="relative aspect-[9/16] rounded-[1.6rem] overflow-hidden bg-black border border-gold/20 shadow-sm">
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Open ${item.caption || "Luxereva video"}`}
+        className="relative block w-full aspect-[9/16] rounded-[1.6rem] overflow-hidden bg-black border border-gold/20 shadow-sm text-left"
+      >
         {item.video ? (
           <video
             ref={videoRef}
@@ -109,6 +106,7 @@ function ReelCard({ item }) {
             muted
             playsInline
             preload="metadata"
+            disablePictureInPicture
             className="absolute inset-0 h-full w-full object-cover"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
@@ -141,7 +139,40 @@ function ReelCard({ item }) {
           )}
           <p className="text-white/80 text-xs mt-2">Customer video</p>
         </div>
-      </div>
+      </button>
     </article>
+  );
+}
+
+function ReelModal({ item, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 px-4 py-6">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close video"
+        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm"
+      >
+        <FiX className="h-5 w-5" />
+      </button>
+      <div className="w-full max-w-[430px]">
+        <div className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-black shadow-2xl">
+          <video
+            src={item.video}
+            poster={item.image || undefined}
+            controls
+            autoPlay
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+          />
+        </div>
+        {item.caption && (
+          <p className="mt-4 text-center text-sm font-semibold uppercase tracking-wider text-white">
+            {item.caption}
+          </p>
+        )}
+      </div>
+    </div>
   );
 }

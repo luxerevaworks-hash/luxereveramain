@@ -20,7 +20,7 @@ async function uploadToStorage(file, folder) {
 export default function AdminSettingsPage() {
   const [form, setForm] = useState({
     storeName: "Luxereva",
-    supportEmail: "hello@luxereva.com",
+    supportEmail: "info@luxereva.com",
     shippingFee: 0,
     freeShippingAt: 0,
     announcement: "",

@@ -69,6 +69,7 @@ export async function POST(req) {
 
       const orderRef = await adminDb.collection("orders").add({
         userId: userId || null,
+        userEmail: customer?.email || null,
         customer,
         items: serverCart.items,
         giftWrap: !!giftWrap,
@@ -126,6 +127,7 @@ export async function POST(req) {
     await getAdminDb().collection("pendingOrders").doc(order.id).set({
       razorpayOrderId: order.id,
       userId: userId || null,
+      userEmail: customer?.email || null,
       customer,
       items: serverCart.items,
       giftWrap: !!giftWrap,

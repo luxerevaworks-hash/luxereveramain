@@ -38,7 +38,7 @@ const SOCIALS = [
   },
   {
     label: "Email",
-    href: "mailto:luxerevaworks@gmail.com",
+    href: "mailto:info@luxereva.com",
     icon: <FiMail className="w-5 h-5" />,
     className: "bg-gold text-brown-dark",
   },

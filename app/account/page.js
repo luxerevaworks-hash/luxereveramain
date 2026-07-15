@@ -8,6 +8,12 @@ import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 
+function getOrderTime(order) {
+  if (order.createdAt?.toMillis) return order.createdAt.toMillis();
+  if (order.createdAt?.seconds) return order.createdAt.seconds * 1000;
+  return 0;
+}
+
 export default function AccountPage() {
   const { user, loading, logout, isAdmin } = useAuth();
   const router = useRouter();
@@ -24,15 +30,31 @@ export default function AccountPage() {
     if (!user) return;
     async function load() {
       try {
-        const q = query(
+        const userOrdersQuery = query(
           collection(db, "orders"),
           where("userId", "==", user.uid),
           orderBy("createdAt", "desc")
         );
-        const snap = await getDocs(q);
-        setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        const emailOrdersQuery = user.email
+          ? query(collection(db, "orders"), where("customer.email", "==", user.email))
+          : null;
+
+        const [userOrdersSnap, emailOrdersSnap] = await Promise.all([
+          getDocs(userOrdersQuery),
+          emailOrdersQuery ? getDocs(emailOrdersQuery) : Promise.resolve({ docs: [] }),
+        ]);
+
+        const ordersById = new Map();
+        [...userOrdersSnap.docs, ...emailOrdersSnap.docs].forEach((docSnap) => {
+          ordersById.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+        });
+
+        setOrders(
+          Array.from(ordersById.values()).sort((a, b) => getOrderTime(b) - getOrderTime(a))
+        );
       } catch (err) {
         console.error(err);
+        toast.error("Could not load order history");
       } finally {
         setOrdersLoading(false);
       }
