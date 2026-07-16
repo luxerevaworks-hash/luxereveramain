@@ -15,10 +15,13 @@ function getOrderTime(order) {
 }
 
 export default function AccountPage() {
-  const { user, loading, logout, isAdmin } = useAuth();
+  const { user, profile, loading, logout, isAdmin, saveCheckoutDetails } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [address, setAddress] = useState({ name: "", phone: "", address: "", city: "", state: "", pincode: "" });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -66,6 +69,26 @@ export default function AccountPage() {
     router.push("/");
   }
 
+  function updateAddress(event) {
+    setAddress((current) => ({ ...current, [event.target.name]: event.target.value }));
+  }
+
+  async function addAddress(event) {
+    event.preventDefault();
+    setSavingAddress(true);
+    try {
+      await saveCheckoutDetails({ ...address, name: address.name || user.displayName || "", email: user.email || "" });
+      setAddress({ name: "", phone: "", address: "", city: "", state: "", pincode: "" });
+      setShowAddressForm(false);
+      toast.success("Address saved");
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not save address");
+    } finally {
+      setSavingAddress(false);
+    }
+  }
+
   if (loading || !user) {
     return <p className="container-page py-20 text-center text-brown/60">Loading…</p>;
   }
@@ -87,6 +110,39 @@ export default function AccountPage() {
           Go to Admin Panel
         </a>
       )}
+
+      <section className="mb-10">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h2 className="uppercase tracking-widest2 text-sm text-brown-dark">Saved Addresses</h2>
+          <button type="button" onClick={() => setShowAddressForm((open) => !open)} className="btn-outline text-xs">
+            {showAddressForm ? "Cancel" : "Add New Address"}
+          </button>
+        </div>
+        {profile?.savedAddresses?.length ? (
+          <div className="space-y-3 mb-4">
+            {profile.savedAddresses.map((savedAddress, index) => (
+              <div key={savedAddress.id || index} className="bg-white border border-gold/30 rounded-xl p-4 text-sm text-brown/80">
+                <p className="font-semibold text-brown-dark">{savedAddress.name}</p>
+                <p>{savedAddress.address}, {savedAddress.city}, {savedAddress.state} {savedAddress.pincode}</p>
+                <p>{savedAddress.phone}</p>
+              </div>
+            ))}
+          </div>
+        ) : !showAddressForm ? <p className="text-sm text-brown/60">No saved addresses yet.</p> : null}
+        {showAddressForm && (
+          <form onSubmit={addAddress} className="bg-white border border-gold/30 rounded-xl p-4 grid sm:grid-cols-2 gap-3">
+            <input name="name" placeholder="Full Name" value={address.name} onChange={updateAddress} required className="input-field" />
+            <input name="phone" placeholder="Phone Number" value={address.phone} onChange={updateAddress} required className="input-field" />
+            <input name="address" placeholder="Address" value={address.address} onChange={updateAddress} required className="input-field sm:col-span-2" />
+            <input name="city" placeholder="City" value={address.city} onChange={updateAddress} required className="input-field" />
+            <input name="state" placeholder="State" value={address.state} onChange={updateAddress} required className="input-field" />
+            <input name="pincode" placeholder="Pincode" value={address.pincode} onChange={updateAddress} required className="input-field" />
+            <button type="submit" disabled={savingAddress} className="btn-primary sm:col-start-2">
+              {savingAddress ? "Saving..." : "Save Address"}
+            </button>
+          </form>
+        )}
+      </section>
 
       <h2 className="uppercase tracking-widest2 text-sm text-brown-dark mb-4">Order History</h2>
 

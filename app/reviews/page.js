@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { collectionGroup, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { PRODUCT_REVIEWS } from "@/components/ProductReviews";
 import { FiStar } from "react-icons/fi";
+
+const PRODUCT_PAGE_REVIEWS = PRODUCT_REVIEWS.map((review, index) => ({ ...review, id: `product-review-${index}` }));
 
 function Stars({ rating }) {
   return (
@@ -16,7 +19,7 @@ function Stars({ rating }) {
 }
 
 export default function AllReviewsPage() {
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState(PRODUCT_PAGE_REVIEWS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,10 +27,14 @@ export default function AllReviewsPage() {
       try {
         const q = query(collectionGroup(db, "reviews"), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
-        setReviews(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        const storedReviews = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setReviews([
+          ...PRODUCT_PAGE_REVIEWS,
+          ...storedReviews.filter((review) => !PRODUCT_PAGE_REVIEWS.some((productReview) => productReview.name === review.name)),
+        ]);
       } catch (err) {
         console.error(err);
-        setReviews([]);
+        setReviews(PRODUCT_PAGE_REVIEWS);
       } finally {
         setLoading(false);
       }
@@ -43,8 +50,6 @@ export default function AllReviewsPage() {
 
       {loading ? (
         <p className="text-center text-brown/60">Loading reviews...</p>
-      ) : reviews.length === 0 ? (
-        <p className="text-center text-brown/60">No reviews yet.</p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {reviews.map((r) => (

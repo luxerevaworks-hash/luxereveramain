@@ -5,7 +5,7 @@ import { FaStar } from "react-icons/fa";
 
 const INITIAL_REVIEWS_SHOWN = 4;
 
-const REVIEWS = [
+export const PRODUCT_REVIEWS = [
   {
     name: "Priya Sharma",
     rating: 5,
@@ -77,7 +77,7 @@ function RatingStars({ rating }) {
 
 export default function ProductReviews() {
   const [showAll, setShowAll] = useState(false);
-  const visibleReviews = showAll ? REVIEWS : REVIEWS.slice(0, INITIAL_REVIEWS_SHOWN);
+  const visibleReviews = showAll ? PRODUCT_REVIEWS : PRODUCT_REVIEWS.slice(0, INITIAL_REVIEWS_SHOWN);
 
   return (
     <section className="bg-cream py-14 md:py-20">
@@ -111,7 +111,7 @@ export default function ProductReviews() {
           ))}
         </div>
 
-        {REVIEWS.length > INITIAL_REVIEWS_SHOWN && (
+        {PRODUCT_REVIEWS.length > INITIAL_REVIEWS_SHOWN && (
           <div className="text-center mt-8">
             <button
               type="button"

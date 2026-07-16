@@ -2,31 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { collectionGroup, getDocs, limit, orderBy, query } from "firebase/firestore";
+import { collectionGroup, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { PRODUCT_REVIEWS } from "@/components/ProductReviews";
 import { FiStar } from "react-icons/fi";
 
-const HOME_REVIEWS_LIMIT = 8;
-const FEATURED_REVIEWS = [
-  {
-    id: "priya-sharma",
-    name: "Priya Sharma",
-    rating: 5,
-    text: "I honestly didn't expect this quality at this price. The finish looks premium and I've been wearing it daily with no fading at all. Totally worth it.",
-  },
-  {
-    id: "ananya-verma",
-    name: "Ananya Verma",
-    rating: 5,
-    text: "Packaging was so beautiful and classy, it felt like I received a luxury gift. The jewelry itself is super elegant. Will definitely order again.",
-  },
-  {
-    id: "neha-patel",
-    name: "Neha Patel",
-    rating: 5,
-    text: "I got so many compliments wearing this ring. It looks exactly like real gold and feels perfect for everyday wear.",
-  },
-];
+const FEATURED_REVIEWS = PRODUCT_REVIEWS.map((review, index) => ({
+  ...review,
+  id: `product-review-${index}`,
+}));
 
 function Stars({ rating }) {
   return (
@@ -44,7 +28,7 @@ export default function HomeReviews() {
   useEffect(() => {
     async function load() {
       try {
-        const q = query(collectionGroup(db, "reviews"), orderBy("createdAt", "desc"), limit(HOME_REVIEWS_LIMIT));
+        const q = query(collectionGroup(db, "reviews"), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
         const loadedReviews = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         if (loadedReviews.length) {
@@ -84,13 +68,11 @@ export default function HomeReviews() {
           </div>
         ))}
       </div>
-      {reviews.length > FEATURED_REVIEWS.length && (
-        <div className="text-center mt-8">
-          <Link href="/reviews" className="btn-outline inline-block">
-            View More Reviews
-          </Link>
-        </div>
-      )}
+      <div className="text-center mt-8">
+        <Link href="/reviews" className="btn-outline inline-block">
+          View More Reviews
+        </Link>
+      </div>
     </section>
   );
 }

@@ -29,15 +29,18 @@ const DEFAULT_ITEMS = [
 ];
 
 export default function UgcSection({ ugc }) {
-  // Use configured reels when available; loading the defaults as well can make
-  // too many videos start at once on mobile and leave some of them blank.
   const customItems = (ugc?.items || []).filter((item) => item.video || item.image);
-  const items = customItems.length ? customItems : DEFAULT_ITEMS;
+  // The four curated reels always stay first; additional reels from settings
+  // are shown after them.
+  const items = [...DEFAULT_ITEMS, ...customItems];
   const [activeVideo, setActiveVideo] = useState(null);
 
   return (
     <section className="bg-cream/40 border-y border-gold/20 py-10 md:py-14">
       <div className="container-page">
+        <h2 className="mb-8 text-center font-serif text-3xl font-semibold text-brown-dark sm:text-4xl">
+          Luxereva Look Book
+        </h2>
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           {items.map((item) => (
             <ReelCard
@@ -118,14 +121,6 @@ function ReelCard({ item, onOpen }) {
           </div>
         )}
         <FiMaximize2 className="absolute top-4 left-4 h-3.5 w-3.5 text-white/80" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent px-4 pb-4 pt-16">
-          {item.caption && (
-            <p className="text-white text-xs font-semibold uppercase tracking-wider leading-snug line-clamp-2">
-              {item.caption}
-            </p>
-          )}
-          <p className="text-white/80 text-xs mt-2">Customer video</p>
-        </div>
       </button>
       {item.video && !failed && (
         <button
@@ -156,11 +151,6 @@ function ReelModal({ item, onClose }) {
         <div className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-black shadow-2xl">
           {item.video ? <video src={item.video} poster={item.image || undefined} controls autoPlay muted playsInline className="h-full w-full object-cover" /> : <Image src={item.image} alt={item.caption || "Customer styled Luxereva piece"} fill className="object-cover" />}
         </div>
-        {item.caption && (
-          <p className="mt-4 text-center text-sm font-semibold uppercase tracking-wider text-white">
-            {item.caption}
-          </p>
-        )}
       </div>
     </div>
   );
