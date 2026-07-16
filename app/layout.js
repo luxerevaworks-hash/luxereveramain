@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import MetaPixel from "@/components/MetaPixel";
 import PresenceTracker from "@/components/PresenceTracker";
+import CartDrawer from "@/components/CartDrawer";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
               <Navbar />
               <main className="min-h-[60vh]">{children}</main>
               <Footer />
+              <CartDrawer />
               <Toaster position="bottom-center" />
             </WishlistProvider>
           </CartProvider>

@@ -11,6 +11,7 @@ export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [giftWrap, setGiftWrap] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -69,6 +70,7 @@ export function CartProvider({ children }) {
         },
       ];
     });
+    setIsCartOpen(true);
   }
 
   function removeItem(key) {
@@ -96,6 +98,9 @@ export function CartProvider({ children }) {
     subtotal,
     itemCount,
     hydrated,
+    isCartOpen,
+    openCart: () => setIsCartOpen(true),
+    closeCart: () => setIsCartOpen(false),
     giftWrap,
     setGiftWrap,
   };

@@ -19,7 +19,7 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
-  const { itemCount } = useCart();
+  const { itemCount, openCart } = useCart();
   const { itemCount: wishlistCount } = useWishlist();
   const { user, isAdmin } = useAuth();
   const router = useRouter();
@@ -89,14 +89,14 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          <Link href="/cart" aria-label="Cart" className="relative">
+          <button type="button" onClick={openCart} aria-label="Open cart" className="relative">
             <FiShoppingBag className="w-4 h-4 text-brown-dark" />
             {itemCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-rosewood text-cream text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
                 {itemCount}
               </span>
             )}
-          </Link>
+          </button>
           <button
             className="lg:hidden"
             onClick={() => setOpen((o) => !o)}

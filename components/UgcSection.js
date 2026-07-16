@@ -9,21 +9,25 @@ const DEFAULT_ITEMS = [
   {
     id: "review-reel-1",
     video: "/videos/luxereva-reel-1.mp4",
+    image: "/images/reel-1-poster.jpg",
     caption: "Review reel",
   },
   {
     id: "review-reel-2",
     video: "/videos/luxereva-reel-2.mp4",
+    image: "/images/reel-2-poster.jpg",
     caption: "Customer styling reel",
   },
   {
     id: "review-reel-3",
     video: "/videos/luxereva-reel-3.mp4",
+    image: "/images/reel-3-poster.jpg",
     caption: "Loved by customers",
   },
   {
     id: "review-reel-4",
     video: "/videos/luxereva-reel-4.mp4",
+    image: "/images/reel-4-poster.jpg",
     caption: "Everyday Luxereva look",
   },
 ];
@@ -134,6 +138,11 @@ function ReelCard({ item, loadVideo, onOpen }) {
           </div>
         )}
         <FiMaximize2 className="absolute top-4 left-4 h-3.5 w-3.5 text-white/80" />
+        <span className={`absolute inset-0 flex items-center justify-center transition-opacity ${isPlaying ? "opacity-0" : "opacity-100"}`} aria-hidden="true">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/45 pl-0.5 text-white backdrop-blur-sm">
+            <FiPlay className="h-4 w-4" fill="currentColor" />
+          </span>
+        </span>
       </button>
       {item.video && !failed && loadVideo && (
         <button
@@ -162,7 +171,7 @@ function ReelModal({ item, onClose }) {
       </button>
       <div className="w-full max-w-[430px]">
         <div className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-black shadow-2xl">
-          {item.video ? <video src={item.video} poster={item.image || undefined} controls autoPlay muted playsInline className="h-full w-full object-cover" /> : <Image src={item.image} alt={item.caption || "Customer styled Luxereva piece"} fill className="object-cover" />}
+          {item.video ? <video src={item.video} poster={item.image || undefined} controls autoPlay muted playsInline preload="metadata" className="h-full w-full object-cover" /> : <Image src={item.image} alt={item.caption || "Customer styled Luxereva piece"} fill className="object-cover" />}
         </div>
       </div>
     </div>
