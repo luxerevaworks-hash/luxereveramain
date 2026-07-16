@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -30,37 +28,33 @@ export default function AccountPage() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setOrders([]);
+      setOrdersLoading(false);
+      return;
+    }
+
+    let cancelled = false;
     async function load() {
+      setOrdersLoading(true);
       try {
-        // Sort in the browser so history also works before a compound Firestore
-        // index has been deployed. Older orders are additionally matched by email.
-        const userOrdersQuery = query(collection(db, "orders"), where("userId", "==", user.uid));
-        const emailOrdersQuery = user.email
-          ? query(collection(db, "orders"), where("customer.email", "==", user.email))
-          : null;
-
-        const [userOrdersSnap, emailOrdersSnap] = await Promise.all([
-          getDocs(userOrdersQuery),
-          emailOrdersQuery ? getDocs(emailOrdersQuery) : Promise.resolve({ docs: [] }),
-        ]);
-
-        const ordersById = new Map();
-        [...userOrdersSnap.docs, ...emailOrdersSnap.docs].forEach((docSnap) => {
-          ordersById.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+        const token = await user.getIdToken();
+        const response = await fetch("/api/orders", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
         });
-
-        setOrders(
-          Array.from(ordersById.values()).sort((a, b) => getOrderTime(b) - getOrderTime(a))
-        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not load order history");
+        if (!cancelled) setOrders(data.orders || []);
       } catch (err) {
         console.error(err);
-        toast.error("Could not load order history");
+        if (!cancelled) toast.error("Could not load order history");
       } finally {
-        setOrdersLoading(false);
+        if (!cancelled) setOrdersLoading(false);
       }
     }
     load();
+    return () => { cancelled = true; };
   }, [user]);
 
   async function handleLogout() {
@@ -158,9 +152,7 @@ export default function AccountPage() {
                 <div>
                   <p className="font-medium text-brown-dark">Order #{order.id.slice(0, 8)}</p>
                   <p className="text-xs text-brown/60">
-                    {order.createdAt?.toDate
-                      ? order.createdAt.toDate().toLocaleString()
-                      : ""}
+                    {getOrderTime(order) ? new Date(getOrderTime(order)).toLocaleString() : "Date pending"}
                   </p>
                 </div>
                 <span className="text-xs uppercase tracking-widest2 px-3 py-1 rounded-full bg-sage/20 text-sage">

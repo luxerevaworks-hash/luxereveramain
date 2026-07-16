@@ -2,17 +2,21 @@
 
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { logEvent } from "firebase/analytics";
-import { analytics } from "@/lib/firebase";
 
 function PageViewLogger() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!analytics) return;
     const url = searchParams?.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
-    logEvent(analytics, "page_view", { page_path: url });
+    // Analytics is not needed to paint the page. Loading it here keeps the
+    // Firebase analytics SDK out of the initial JavaScript bundle.
+    Promise.all([import("firebase/analytics"), import("@/lib/firebase")])
+      .then(([{ getAnalytics, logEvent }, { default: app }]) => {
+        logEvent(getAnalytics(app), "page_view", { page_path: url });
+      })
+      // Measurement is optional; it must never affect the shopping experience.
+      .catch(() => {});
   }, [pathname, searchParams]);
 
   return null;

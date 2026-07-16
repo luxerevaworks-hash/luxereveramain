@@ -49,16 +49,15 @@ export default function HeroSlider({ slides }) {
 
   return (
     <section className="relative min-h-[420px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[680px] overflow-hidden bg-black">
-      {activeSlides.map((item, i) => (
+      {slide && (
         <img
-          key={item.id || i}
-          src={item.image}
-          alt={item.title || "Luxereva jewelry banner"}
-          className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
-            i === index ? "opacity-100" : "opacity-0"
-          }`}
+          key={slide.id || index}
+          src={slide.image}
+          alt={slide.title || "Luxereva jewelry banner"}
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
-      ))}
+      )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/25 to-black/15" />
 
       <div className="container-page relative z-10 flex min-h-[420px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[680px] items-center py-10">

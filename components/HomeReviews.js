@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { collectionGroup, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -24,8 +24,27 @@ function Stars({ rating }) {
 
 export default function HomeReviews() {
   const [reviews, setReviews] = useState(FEATURED_REVIEWS);
+  const [loadRemoteReviews, setLoadRemoteReviews] = useState(false);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
+    const element = sectionRef.current;
+    if (!element || !("IntersectionObserver" in window)) {
+      setLoadRemoteReviews(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setLoadRemoteReviews(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: "300px" });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!loadRemoteReviews) return;
     async function load() {
       try {
         const q = query(collectionGroup(db, "reviews"), orderBy("createdAt", "desc"));
@@ -44,10 +63,10 @@ export default function HomeReviews() {
       }
     }
     load();
-  }, []);
+  }, [loadRemoteReviews]);
 
   return (
-    <section className="container-page py-12 md:py-14">
+    <section ref={sectionRef} className="container-page py-12 md:py-14">
       <h2 className="text-center uppercase tracking-widest2 text-brown-dark text-xl">
         Customer Reviews
       </h2>
