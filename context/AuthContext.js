@@ -82,6 +82,39 @@ export function AuthProvider({ children }) {
     return signOut(auth);
   }
 
+  async function saveCheckoutDetails(details) {
+    if (!auth.currentUser) return;
+
+    const cleanAddress = {
+      name: details.name?.trim() || "",
+      phone: details.phone?.trim() || "",
+      address: details.address?.trim() || "",
+      city: details.city?.trim() || "",
+      state: details.state?.trim() || "",
+      pincode: details.pincode?.trim() || "",
+    };
+    const complete = Object.values(cleanAddress).every(Boolean);
+    const existing = Array.isArray(profile?.savedAddresses) ? profile.savedAddresses : [];
+    const matchingIndex = existing.findIndex((address) =>
+      ["address", "city", "state", "pincode"].every((key) => address?.[key] === cleanAddress[key])
+    );
+    const savedAddresses = complete
+      ? matchingIndex >= 0
+        ? existing.map((address, index) => index === matchingIndex ? { ...address, ...cleanAddress } : address)
+        : [...existing, { id: `address_${Date.now()}`, label: `Address ${existing.length + 1}`, ...cleanAddress }]
+      : existing;
+
+    await setDoc(doc(db, "users", auth.currentUser.uid), {
+      name: details.name?.trim() || auth.currentUser.displayName || "",
+      email: auth.currentUser.email || details.email?.trim() || "",
+      phone: cleanAddress.phone,
+      savedAddresses,
+      defaultAddress: complete ? cleanAddress : profile?.defaultAddress || null,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+    setProfile((current) => current ? { ...current, savedAddresses, defaultAddress: complete ? cleanAddress : current.defaultAddress } : current);
+  }
+
   const isAdmin = profile?.role === "admin";
 
   const value = {
@@ -93,6 +126,7 @@ export function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     logout,
+    saveCheckoutDetails,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

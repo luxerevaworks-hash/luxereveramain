@@ -11,10 +11,11 @@ import { fbqTrack } from "@/components/MetaPixel";
 import toast from "react-hot-toast";
 
 const SUCCESS_STORAGE_KEY = "luxereva_last_order";
+const CHECKOUT_DRAFT_KEY = "luxereva_checkout_draft";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart, hydrated, giftWrap, setGiftWrap } = useCart();
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, saveCheckoutDetails } = useAuth();
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -27,10 +28,32 @@ export default function CheckoutPage() {
     pincode: "",
   });
   const [paymentMethod, setPaymentMethod] = useState("prepaid");
+  const [selectedAddressId, setSelectedAddressId] = useState("new");
+  const [saveAddress, setSaveAddress] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const checkoutTracked = useRef(false);
+  const draftRestored = useRef(false);
 
   const total = subtotal + (giftWrap ? GIFT_WRAP_FEE : 0);
+  const savedAddresses = profile?.savedAddresses?.length
+    ? profile.savedAddresses
+    : profile?.defaultAddress
+      ? [{ id: "default", label: "Saved address", ...profile.defaultAddress }]
+      : [];
+
+  useEffect(() => {
+    if (typeof window === "undefined" || draftRestored.current) return;
+    draftRestored.current = true;
+    try {
+      const draft = JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || "null");
+      if (draft?.form) {
+        setForm((current) => ({ ...current, ...draft.form }));
+        setPaymentMethod(draft.paymentMethod === "cod" ? "cod" : "prepaid");
+      }
+    } catch (err) {
+      console.error("Could not restore checkout details", err);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -41,6 +64,24 @@ export default function CheckoutPage() {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!profile || !draftRestored.current) return;
+    const address = profile.defaultAddress || profile.savedAddresses?.[0];
+    if (!address) return;
+    setForm((current) => current.address ? current : {
+      ...current,
+      ...address,
+      name: current.name || address.name || user?.displayName || "",
+      email: current.email || user?.email || "",
+    });
+    setSelectedAddressId(address.id || "default");
+  }, [profile, user]);
+
+  useEffect(() => {
+    if (!draftRestored.current || typeof window === "undefined") return;
+    localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify({ form, paymentMethod }));
+  }, [form, paymentMethod]);
 
   useEffect(() => {
     if (!hydrated || items.length === 0 || checkoutTracked.current) return;
@@ -88,6 +129,27 @@ export default function CheckoutPage() {
     );
   }
 
+  async function saveSuccessfulCheckoutDetails() {
+    if (!saveAddress) return;
+    try {
+      await saveCheckoutDetails(form);
+    } catch (err) {
+      // An order must not look unsuccessful merely because the optional address save failed.
+      console.error("Could not save delivery details", err);
+    }
+  }
+
+  function selectSavedAddress(value) {
+    setSelectedAddressId(value);
+    if (value === "new") {
+      setForm((current) => ({ ...current, phone: "", address: "", city: "", state: "", pincode: "" }));
+      return;
+    }
+    const address = (profile?.savedAddresses || []).find((item) => item.id === value)
+      || profile?.defaultAddress;
+    if (address) setForm((current) => ({ ...current, ...address, email: current.email || user?.email || "" }));
+  }
+
   async function handlePay(e) {
     e.preventDefault();
 
@@ -115,6 +177,8 @@ export default function CheckoutPage() {
         if (!codData?.success) throw new Error(codData?.error || "Could not place order");
 
         saveOrderForSuccessPage(codData.orderId, "cod");
+        await saveSuccessfulCheckoutDetails();
+        localStorage.removeItem(CHECKOUT_DRAFT_KEY);
         clearCart();
         toast.success("Order placed! Pay on delivery.");
         router.push(`/order-success?order_id=${encodeURIComponent(codData.orderId)}`);
@@ -175,6 +239,8 @@ export default function CheckoutPage() {
 
             if (verifyData?.success) {
               saveOrderForSuccessPage(verifyData.orderId, "prepaid");
+              await saveSuccessfulCheckoutDetails();
+              localStorage.removeItem(CHECKOUT_DRAFT_KEY);
               clearCart();
               toast.success("Payment successful! Order placed.");
               router.push(`/order-success?order_id=${encodeURIComponent(verifyData.orderId)}`);
@@ -223,8 +289,22 @@ export default function CheckoutPage() {
           <h1 className="text-2xl uppercase tracking-widest2 text-brown-dark mb-4">
             Shipping Details
           </h1>
+          {user && savedAddresses.length > 0 && (
+            <div className="rounded-lg border border-gold/30 bg-white p-4">
+              <label className="block text-xs uppercase tracking-widest2 text-brown-dark mb-2" htmlFor="saved-address">
+                Saved delivery address
+              </label>
+              <select id="saved-address" value={selectedAddressId} onChange={(e) => selectSavedAddress(e.target.value)} className="input-field">
+                {savedAddresses.map((address, index) => (
+                  <option key={address.id || index} value={address.id || "default"}>
+                    {address.label || `Address ${index + 1}`} — {address.address}, {address.city}
+                  </option>
+                ))}
+                <option value="new">Add a new address</option>
+              </select>
+            </div>
+          )}
           <input name="name" placeholder="Full Name" value={form.name} onChange={handleChange} required className="input-field" />
-          <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required className="input-field" />
           <input name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} required className="input-field" />
           <input name="address" placeholder="Address" value={form.address} onChange={handleChange} required className="input-field" />
           <div className="grid grid-cols-2 gap-4">
@@ -232,6 +312,12 @@ export default function CheckoutPage() {
             <input name="state" placeholder="State" value={form.state} onChange={handleChange} required className="input-field" />
           </div>
           <input name="pincode" placeholder="Pincode" value={form.pincode} onChange={handleChange} required className="input-field" />
+          {user && (
+            <label className="flex items-center gap-2 text-sm text-brown/80 cursor-pointer">
+              <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
+              Save this address for future orders
+            </label>
+          )}
 
           <GiftWrapOption checked={giftWrap} onChange={setGiftWrap} />
 

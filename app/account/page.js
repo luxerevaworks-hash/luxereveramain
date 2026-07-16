@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils";
@@ -30,11 +30,9 @@ export default function AccountPage() {
     if (!user) return;
     async function load() {
       try {
-        const userOrdersQuery = query(
-          collection(db, "orders"),
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc")
-        );
+        // Sort in the browser so history also works before a compound Firestore
+        // index has been deployed. Older orders are additionally matched by email.
+        const userOrdersQuery = query(collection(db, "orders"), where("userId", "==", user.uid));
         const emailOrdersQuery = user.email
           ? query(collection(db, "orders"), where("customer.email", "==", user.email))
           : null;
@@ -121,6 +119,11 @@ export default function AccountPage() {
                   </li>
                 ))}
               </ul>
+              {order.customer && (
+                <p className="text-xs text-brown/60 mb-2">
+                  Delivering to {order.customer.address}, {order.customer.city}, {order.customer.state} {order.customer.pincode}
+                </p>
+              )}
               <p className="font-semibold text-gold">{formatPrice(order.total)}</p>
             </div>
           ))}

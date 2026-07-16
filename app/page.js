@@ -130,8 +130,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <HomeReviews />
       <UgcSection ugc={ugc} />
+      <HomeReviews />
+
     </div>
   );
 }
