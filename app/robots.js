@@ -1,5 +1,5 @@
 export default function robots() {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://luxereva.com").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.luxereva.com").replace(/\/$/, "");
 
   return {
     rules: {
