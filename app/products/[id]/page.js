@@ -172,6 +172,7 @@ export default function ProductDetailPage() {
                 src={product.images[activeImage]}
                 alt={product.name}
                 fill
+                unoptimized
                 className="object-cover"
                 priority
               />
@@ -209,7 +210,7 @@ export default function ProductDetailPage() {
                     activeImage === idx ? "border-rosewood scale-105" : "border-gold/30"
                   }`}
                 >
-                  <Image src={img} alt={`${product.name} ${idx + 1}`} fill className="object-cover" />
+                  <Image src={img} alt={`${product.name} ${idx + 1}`} fill unoptimized className="object-cover" />
                 </button>
               ))}
             </div>

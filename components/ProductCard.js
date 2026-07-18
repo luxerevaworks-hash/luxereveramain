@@ -73,6 +73,7 @@ export default function ProductCard({ product }) {
                 src={primaryImage}
                 alt={product.name}
                 fill
+                unoptimized
                 className={`object-cover transition-opacity duration-300 ${
                   hovered && secondaryImage ? "opacity-0" : "opacity-100 group-hover:scale-105"
                 }`}
@@ -82,6 +83,7 @@ export default function ProductCard({ product }) {
                   src={secondaryImage}
                   alt={product.name}
                   fill
+                  unoptimized
                   className={`object-cover absolute inset-0 transition-opacity duration-300 ${
                     hovered ? "opacity-100" : "opacity-0"
                   }`}

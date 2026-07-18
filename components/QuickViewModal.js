@@ -36,6 +36,7 @@ export default function QuickViewModal({ product, onClose, onAddToCart }) {
               src={product.images[0]}
               alt={product.name}
               fill
+              unoptimized
               className="object-cover"
             />
           )}
