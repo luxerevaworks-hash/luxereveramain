@@ -15,7 +15,7 @@ const STATIC_PAGES = [
 ];
 
 export default async function sitemap() {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.luxereva.com").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
   const entries = STATIC_PAGES.map(([path, priority]) => ({
     url: `${siteUrl}${path}`,
     lastModified: new Date(),

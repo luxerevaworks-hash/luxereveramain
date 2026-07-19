@@ -11,9 +11,22 @@ import CartDrawer from "@/components/CartDrawer";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "Luxereva | Premium Jewellery",
+  metadataBase: new URL("https://luxereva.com"),
+  title: {
+    default: "Luxereva | Premium Jewellery",
+    template: "%s | Luxereva",
+  },
   description:
     "Discover Luxereva's trend-inspired jewellery — necklaces, earrings, bracelets, rings and more. Premium finish, lightweight designs, best for gifting.",
+  applicationName: "Luxereva",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
+  },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },

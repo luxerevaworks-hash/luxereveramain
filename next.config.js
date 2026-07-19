@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.luxereva.com" }],
+        destination: "https://luxereva.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       ...["/images/:path*", "/videos/:path*", "/fonts/:path*"].map((source) => ({
