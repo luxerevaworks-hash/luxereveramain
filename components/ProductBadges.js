@@ -18,21 +18,21 @@ export default function ProductBadges({ product, className = "" }) {
   if (!soldOut && !discountPercent && badges.length === 0) return null;
 
   return (
-    <div className={`flex flex-col items-start gap-1 ${className}`}>
+    <div className={`flex flex-col items-start gap-1 max-w-[80%] ${className}`}>
       {soldOut && (
-        <span className="bg-rosewood text-cream text-[9px] font-semibold uppercase tracking-widest2 px-2.5 py-1 rounded-full shadow-sm">
+        <span className="bg-rosewood text-cream text-[9px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full shadow-sm whitespace-nowrap leading-tight">
           Sold Out
         </span>
       )}
       {discountPercent > 0 && (
-        <span className="bg-red-600 text-white text-[9px] font-semibold uppercase tracking-widest2 px-2.5 py-1 rounded-full shadow-sm">
+        <span className="bg-red-600 text-white text-[9px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full shadow-sm whitespace-nowrap leading-tight">
           {discountPercent}% Off
         </span>
       )}
       {badges.map((badge) => (
         <span
           key={badge.key}
-          className={`${badge.className} text-white text-[9px] font-semibold uppercase tracking-widest2 px-2.5 py-1 rounded-full shadow-sm`}
+          className={`${badge.className} text-white text-[9px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full shadow-sm whitespace-nowrap leading-tight max-w-full truncate`}
         >
           {badge.label}
         </span>

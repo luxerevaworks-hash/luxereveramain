@@ -3,7 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
@@ -14,6 +23,8 @@ import { CATEGORIES } from "@/lib/categories";
 
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [newArrivalsLoading, setNewArrivalsLoading] = useState(true);
   const [categoryImageOverrides, setCategoryImageOverrides] = useState({});
   const [banner, setBanner] = useState(null);
   const [heroSlides, setHeroSlides] = useState([]);
@@ -63,6 +74,28 @@ export default function HomePage() {
     load();
   }, []);
 
+  useEffect(() => {
+    async function loadNewArrivals() {
+      try {
+        const q = query(
+          collection(db, "products"),
+          where("badges", "array-contains", "new"),
+          limit(8)
+        );
+        const snap = await getDocs(q);
+        const products = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        setNewArrivals(products);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setNewArrivalsLoading(false);
+      }
+    }
+    loadNewArrivals();
+  }, []);
+
   return (
     <div>
       <HeroSlider slides={heroSlides} />
@@ -99,6 +132,19 @@ export default function HomePage() {
           })}
         </div>
       </section>
+
+      {!newArrivalsLoading && newArrivals.length > 0 && (
+        <section className="container-page py-12">
+          <h2 className="text-center uppercase tracking-widest2 text-brown-dark text-xl mb-8">
+            New Arrivals
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {newArrivals.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {banner && (
         <section className="container-page py-6">

@@ -56,7 +56,10 @@ function ProductsContent() {
     load();
   }, []);
 
+  const ringsComingSoon = activeCategory === "rings";
+
   const filtered = allProducts.filter((p) => {
+    if (p.category === "rings") return false;
     const matchesCategory =
       activeCategory === "all" || p.category === activeCategory;
     const matchesSearch =
@@ -109,6 +112,15 @@ function ProductsContent() {
           <p className="text-center text-brown/60 py-12">
             Loading products...
           </p>
+        ) : ringsComingSoon ? (
+          <div className="text-center py-24">
+            <h2 className="text-2xl uppercase tracking-widest2 text-brown-dark mb-3">
+              Coming Soon
+            </h2>
+            <p className="text-brown/60">
+              Our Rings collection is on its way. Check back soon.
+            </p>
+          </div>
         ) : filtered.length === 0 ? (
           <p className="text-center text-brown/60 py-12">
             No products found. Add products from the Admin Panel.

@@ -4,6 +4,19 @@ module.exports = {
     "./app/**/*.{js,jsx}",
     "./components/**/*.{js,jsx}",
     "./context/**/*.{js,jsx}",
+    "./lib/**/*.{js,jsx}",
+  ],
+  safelist: [
+    "bg-blue-600",
+    "bg-amber-600",
+    "bg-rose-600",
+    "bg-orange-600",
+    "bg-indigo-600",
+    "bg-brown-dark",
+    "bg-red-600",
+    "bg-pink-600",
+    "bg-purple-700",
+    "bg-rosewood",
   ],
   theme: {
     extend: {

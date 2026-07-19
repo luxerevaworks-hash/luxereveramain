@@ -1,0 +1,26 @@
+
+> luxereva-ecommerce@1.0.0 dev
+> next dev
+
+ ⚠ You are using a non-standard "NODE_ENV" value in your environment. This creates inconsistencies in the project and is strongly advised against. Read more: https://nextjs.org/docs/messages/non-standard-node-env
+ ⚠ Port 3000 is in use, trying 3001 instead.
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+(node:23712) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ Ready in 5.7s
+ ○ Compiling /products ...
+ ✓ Compiled /products in 6.7s (956 modules)
+ GET /products?category=rings 200 in 8881ms
+ ○ Compiling / ...
+ ✓ Compiled / in 5.5s (978 modules)
+ GET / 200 in 6164ms
+ ✓ Compiled in 12.4s (347 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\1.pack.gz_' -> 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\1.pack.gz'
+ ✓ Compiled in 5.1s (347 modules)
+ ✓ Compiled in 410ms (347 modules)
+ ✓ Compiled in 549ms (347 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\5.pack.gz_' -> 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\5.pack.gz'
