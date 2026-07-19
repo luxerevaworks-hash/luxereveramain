@@ -3,16 +3,14 @@
 > next dev
 
  ⚠ You are using a non-standard "NODE_ENV" value in your environment. This creates inconsistencies in the project and is strongly advised against. Read more: https://nextjs.org/docs/messages/non-standard-node-env
- ⚠ Port 3000 is in use, trying 3001 instead.
- ⚠ Port 3001 is in use, trying 3002 instead.
   ▲ Next.js 14.2.35
-  - Local:        http://localhost:3002
+  - Local:        http://localhost:3000
   - Environments: .env.local
 
  ✓ Starting...
-(node:18324) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(node:27544) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
 (Use `node --trace-warnings ...` to show where the warning was created)
- ✓ Ready in 3.5s
+ ✓ Ready in 4.2s
  ○ Compiling /products ...
  ⨯ ./app/globals.css
 Module parse failed: Unexpected character '@' (1:0)
@@ -32,7 +30,6 @@ Module parse failed: Unexpected character '@' (1:0)
 Import trace for requested module:
 ./app/globals.css
 ./app/layout.js
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\1.pack.gz_' -> 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\1.pack.gz'
  ⨯ ./app/globals.css
 Module parse failed: Unexpected character '@' (1:0)
 > @tailwind base;
@@ -42,4 +39,14 @@ Module parse failed: Unexpected character '@' (1:0)
 Import trace for requested module:
 ./app/globals.css
 ./app/layout.js
- GET /products?category=necklaces 500 in 53488ms
+ GET /products?category=necklaces 500 in 25845ms
+ ⨯ ./app/globals.css
+Module parse failed: Unexpected character '@' (1:0)
+> @tailwind base;
+| @tailwind components;
+| @tailwind utilities;
+
+Import trace for requested module:
+./app/globals.css
+./app/layout.js
+ GET / 500 in 804ms

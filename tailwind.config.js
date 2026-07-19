@@ -7,7 +7,6 @@ module.exports = {
     "./lib/**/*.{js,jsx}",
   ],
   safelist: [
-    "bg-blue-600",
     "bg-amber-600",
     "bg-rose-600",
     "bg-orange-600",

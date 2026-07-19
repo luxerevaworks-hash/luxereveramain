@@ -25,7 +25,7 @@ export default function ProductBadges({ product, className = "" }) {
         </span>
       )}
       {discountPercent > 0 && (
-        <span className="bg-red-600 text-white text-[9px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full shadow-sm whitespace-nowrap leading-tight">
+        <span className="bg-gold text-brown-dark text-[9px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full shadow-sm whitespace-nowrap leading-tight">
           {discountPercent}% Off
         </span>
       )}

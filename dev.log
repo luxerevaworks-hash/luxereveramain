@@ -24,3 +24,10 @@
  ✓ Compiled in 410ms (347 modules)
  ✓ Compiled in 549ms (347 modules)
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\5.pack.gz_' -> 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\5.pack.gz'
+ ✓ Compiled in 3.7s (347 modules)
+ ✓ Compiled in 1053ms (347 modules)
+ ✓ Compiled in 1502ms (347 modules)
+ ✓ Compiled in 523ms (347 modules)
+ ✓ Compiled in 1242ms (347 modules)
+ ✓ Compiled in 1755ms (347 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\1.pack.gz_' -> 'C:\Users\khushi mishra\Downloads\luxereva-ecommerce\luxereva-ecommerce\.next\cache\webpack\client-development\1.pack.gz'
