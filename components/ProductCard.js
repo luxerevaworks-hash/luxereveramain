@@ -73,20 +73,20 @@ export default function ProductCard({ product }) {
                 src={primaryImage}
                 alt={product.name}
                 fill
-                unoptimized
+                sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 25vw"
+                quality={75}
                 className={`object-cover transition-opacity duration-300 ${
                   hovered && secondaryImage ? "opacity-0" : "opacity-100 group-hover:scale-105"
                 }`}
               />
-              {secondaryImage && (
+              {hovered && secondaryImage && (
                 <Image
                   src={secondaryImage}
                   alt={product.name}
                   fill
-                  unoptimized
-                  className={`object-cover absolute inset-0 transition-opacity duration-300 ${
-                    hovered ? "opacity-100" : "opacity-0"
-                  }`}
+                  sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 25vw"
+                  quality={75}
+                  className="object-cover absolute inset-0 opacity-100 transition-opacity duration-300"
                 />
               )}
             </>
