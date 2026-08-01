@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 const DEFAULT_SLIDES = [
   {
@@ -58,22 +57,6 @@ export default function HeroSlider({ slides }) {
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/25 to-black/15" />
-
-      <div className="container-page relative z-10 flex min-h-[420px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[680px] items-center py-10">
-        <div className="max-w-xl text-white">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight whitespace-pre-line">
-            <span className="text-gold">{"\u2661"}</span> {slide.title}
-          </h1>
-          {slide.subtitle && (
-            <p className="mt-4 text-white/80 text-base md:text-lg">{slide.subtitle}</p>
-          )}
-          <Link href={slide.ctaLink || "/products"} className="btn-primary inline-block mt-8">
-            {slide.ctaText || "Explore Now"}
-          </Link>
-        </div>
-      </div>
-
       {activeSlides.length > 1 && (
         <div className="absolute bottom-6 left-0 right-0 z-10 flex justify-center gap-2">
           {activeSlides.map((s, i) => (
