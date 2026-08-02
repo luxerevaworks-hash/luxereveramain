@@ -5,21 +5,21 @@ import { useEffect, useState } from "react";
 const DEFAULT_SLIDES = [
   {
     id: "hero-earrings",
-    image: "/images/hero-earrings.webp",
+    image: "/images/hero-earrings-banner.webp",
     title: "Loved By\n1K+ Customers",
     ctaText: "Explore Now",
     ctaLink: "/products",
   },
   {
     id: "hero-necklaces",
-    image: "/images/hero-necklaces.webp",
+    image: "/images/hero-necklaces-banner.webp",
     title: "Loved By\n1K+ Customers",
     ctaText: "Explore Now",
     ctaLink: "/products",
   },
   {
     id: "hero-monsoon",
-    image: "/images/hero-monsoon.webp",
+    image: "/images/hero-monsoon-banner.webp",
     title: "Loved By\n1K+ Customers",
     ctaText: "Explore Now",
     ctaLink: "/products",
@@ -47,14 +47,14 @@ export default function HeroSlider({ slides }) {
   const slide = activeSlides[index];
 
   return (
-    <section className="relative min-h-[420px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[680px] overflow-hidden bg-black">
+    <section className="relative w-full overflow-hidden">
       {slide && (
         <img
           key={slide.id || index}
           src={slide.image}
           alt={slide.title || "Luxereva jewelry banner"}
           fetchPriority="high"
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="block aspect-video w-full object-cover"
         />
       )}
       {activeSlides.length > 1 && (

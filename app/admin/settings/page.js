@@ -342,7 +342,7 @@ export default function AdminSettingsPage() {
                   />
                   {slide.image && (
                     <div className="relative aspect-[2/1] max-w-xs rounded-lg overflow-hidden border border-gold/30 bg-cream">
-                      <img src={slide.image} alt={`Slide ${idx + 1}`} className="w-full h-full object-cover" />
+                      <img src={slide.image} alt={`Slide ${idx + 1}`} className="w-full h-full object-contain" />
                     </div>
                   )}
                   <input
