@@ -46,7 +46,7 @@ export default function Navbar() {
           <Logo className="w-32 sm:w-48 h-auto" />
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-5 text-[11px] uppercase tracking-widest2 text-brown-dark">
+        <nav className="hidden lg:flex items-center gap-5 text-[11px] font-semibold uppercase tracking-widest2 text-brown-dark">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -127,7 +127,7 @@ export default function Navbar() {
 
       {open && (
         <div className="lg:hidden border-t border-gold/40 bg-cream">
-          <div className="container-page py-4 flex flex-col gap-3 text-sm uppercase tracking-widest2 text-brown-dark">
+          <div className="container-page py-4 flex flex-col gap-3 text-sm font-semibold uppercase tracking-widest2 text-brown-dark">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
