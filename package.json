@@ -9,7 +9,8 @@
     "lint": "next lint",
     "seed": "node scripts/seed.js",
     "seed:catalog": "node scripts/seedCatalog.js",
-    "seed:drive-products": "node scripts/seedDriveProducts.js"
+    "seed:drive-products": "node scripts/seedDriveProducts.js",
+    "upload:drive-product-images": "node scripts/uploadDriveProductImages.js"
   },
   "dependencies": {
     "firebase": "^10.14.1",

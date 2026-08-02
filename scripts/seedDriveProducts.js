@@ -24,13 +24,6 @@ const app = getApps().length
 
 const db = getFirestore(app);
 
-const productImages = (folder, count) =>
-  Array.from(
-    { length: count },
-    (_, index) =>
-      `/images/products/${folder}/Luxereva_Jewelry_${String(index + 1).padStart(2, "0")}.png`
-  );
-
 const products = [
   {
     id: "crystal-huggie-pendant-set",
@@ -47,7 +40,6 @@ const products = [
     featured: true,
     description:
       "A graceful matching set featuring polished gold-tone huggie hoops and a fine pendant necklace, each finished with a luminous solitaire-style crystal. An effortless choice for everyday elegance, thoughtful gifting, and softly elevated occasion wear.",
-    images: productImages("crystal-huggie-pendant-set", 7),
     videos: [],
     variants: [],
   },
@@ -66,7 +58,6 @@ const products = [
     featured: true,
     description:
       "A modern gold-tone link necklace with a sculpted heart pendant and a delicate draped-chain detail. Its mix of smooth and elongated links gives this romantic piece a refined, contemporary finish that layers beautifully or stands confidently on its own.",
-    images: productImages("heart-link-pendant-necklace", 6),
     videos: [],
     variants: [],
   },
