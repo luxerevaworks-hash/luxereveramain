@@ -3,12 +3,15 @@
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-RVZPZZSJSS";
+
 function PageViewLogger() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const url = searchParams?.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+    window.gtag?.("config", GA_MEASUREMENT_ID, { page_path: url });
     // Analytics is not needed to paint the page. Loading it here keeps the
     // Firebase analytics SDK out of the initial JavaScript bundle.
     Promise.all([import("firebase/analytics"), import("@/lib/firebase")])

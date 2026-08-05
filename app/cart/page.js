@@ -88,7 +88,7 @@ export default function CartPage() {
           </div>
           <div className="flex justify-between text-sm mb-4">
             <span className="text-brown/70">Shipping</span>
-            <span className="text-sage">Calculated at checkout</span>
+            <span className="text-sage font-medium">FREE</span>
           </div>
           <div className="border-t border-gold/30 pt-4 flex justify-between font-semibold text-brown-dark mb-6">
             <span>Total</span>

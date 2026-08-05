@@ -92,7 +92,7 @@ export default function CartDrawer() {
                 <span className="text-sm uppercase tracking-widest2">Subtotal</span>
                 <span className="font-semibold text-gold">{formatPrice(subtotal)}</span>
               </div>
-              <p className="mb-4 text-xs text-brown/60">Shipping and any gift-wrap charge are calculated at checkout.</p>
+              <p className="mb-4 text-xs text-brown/60">Free delivery on every order. Any gift-wrap charge is calculated at checkout.</p>
               <div className="grid grid-cols-2 gap-3">
                 <Link href="/cart" onClick={closeCart} className="btn-outline justify-center px-3">View Bag</Link>
                 <Link href="/checkout" onClick={closeCart} className="btn-primary justify-center px-3">Checkout</Link>
