@@ -42,7 +42,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur border-b border-gold/40">
+    <header className="sticky top-0 z-50 bg-cream border-b border-gold/40">
       <div className="bg-brown-dark text-cream text-[11px] sm:text-xs py-1.5 overflow-hidden whitespace-nowrap">
         <div className="inline-block animate-marquee">
           🚚 <span className="text-gold font-semibold">FREE delivery on all products</span>
@@ -179,7 +179,14 @@ export default function Navbar() {
               ))}
             </div>
             <div className="pt-4 space-y-3 text-sm text-brown-dark">
-              <Link href={user ? "/account" : "/login"} onClick={() => setOpen(false)} className="flex items-center gap-3"><FiUser />{user ? "My Account" : "Sign In / Register"}</Link>
+              {user ? (
+                <Link href="/account" onClick={() => setOpen(false)} className="flex items-center gap-3"><FiUser />My Account</Link>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setOpen(false)} className="flex items-center gap-3"><FiUser />Login</Link>
+                  <Link href="/signup" onClick={() => setOpen(false)} className="flex items-center gap-3"><FiUser />Create Account</Link>
+                </>
+              )}
               <Link href="/wishlist" onClick={() => setOpen(false)} className="flex items-center gap-3"><FiHeart />My Wishlist</Link>
             </div>
           </aside>
