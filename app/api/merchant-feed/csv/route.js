@@ -19,7 +19,7 @@ function csvEscape(value = "") {
 // Center re-fetches it on its own schedule, so newly added products show up
 // automatically without re-uploading anything.
 export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = (process.env.NEXT_PUBLIC_CANONICAL_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://luxereva.com").replace(/\/$/, "");
   const rows = [COLUMNS.join(",")];
 
   try {

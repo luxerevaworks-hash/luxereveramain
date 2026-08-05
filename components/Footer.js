@@ -60,6 +60,7 @@ const FOOTER_SECTIONS = [
       { label: "About Us", href: "/about-us" },
       { label: "Blogs", href: "/blogs" },
       { label: "Terms & Conditions", href: "/terms-and-conditions" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
     ],
   },
   {
@@ -68,6 +69,8 @@ const FOOTER_SECTIONS = [
       { label: "Track Order", href: "/account" },
       { label: "Contact", href: "/contact" },
       { label: "FAQ", href: "/faq" },
+      { label: "Shipping Policy", href: "/shipping-policy" },
+      { label: "Refund & Returns", href: "/refund-returns-policy" },
     ],
   },
   {

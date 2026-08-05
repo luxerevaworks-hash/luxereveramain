@@ -16,7 +16,7 @@ function escapeXml(value = "") {
 // Once a production domain exists, point Merchant Center's "Scheduled fetch"
 // at {NEXT_PUBLIC_SITE_URL}/api/merchant-feed.
 export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = (process.env.NEXT_PUBLIC_CANONICAL_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://luxereva.com").replace(/\/$/, "");
 
   let items = "";
   try {

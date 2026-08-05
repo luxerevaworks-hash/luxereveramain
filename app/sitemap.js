@@ -12,6 +12,9 @@ const STATIC_PAGES = [
   ["/reviews", 0.5],
   ["/notifications", 0.3],
   ["/terms-and-conditions", 0.3],
+  ["/privacy-policy", 0.3],
+  ["/shipping-policy", 0.3],
+  ["/refund-returns-policy", 0.3],
 ];
 
 export default async function sitemap() {

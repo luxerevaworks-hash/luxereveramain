@@ -11,7 +11,7 @@ import CartDrawer from "@/components/CartDrawer";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  metadataBase: new URL("https://luxereva.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com"),
   title: {
     default: "Luxereva | Premium Jewellery",
     template: "%s | Luxereva",
@@ -29,6 +29,17 @@ export const metadata = {
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
