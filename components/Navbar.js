@@ -153,7 +153,7 @@ export default function Navbar() {
       {open && (
         <div className="lg:hidden fixed inset-0 z-[60] bg-brown-dark/35" onClick={() => setOpen(false)}>
           <aside
-            className="h-full w-[86%] max-w-sm overflow-y-auto bg-cream px-5 py-5 shadow-2xl"
+            className="h-full w-full overflow-y-auto bg-cream px-5 py-5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             aria-label="Site navigation"
           >
