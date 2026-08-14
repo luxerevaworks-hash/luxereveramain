@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebaseAdmin";
+import { getProductSlug } from "@/lib/productUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export async function GET() {
           <g:id>${doc.id}</g:id>
           <title>${escapeXml(p.name)}</title>
           <description>${escapeXml(p.description || p.name)}</description>
-          <link>${siteUrl}/products/${doc.id}</link>
+          <link>${siteUrl}/products/${encodeURIComponent(getProductSlug({ id: doc.id, ...p }))}</link>
           <g:image_link>${escapeXml(p.images?.[0] || "")}</g:image_link>
           <g:availability>${availability}</g:availability>
           <g:price>${price} INR</g:price>

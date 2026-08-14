@@ -57,8 +57,20 @@ export default function ProductDetailPage() {
       try {
         const ref = doc(db, "products", id);
         const snap = await getDoc(ref);
-        const fallback = sampleProducts.find((item) => item.id === id);
-        const data = snap.exists() ? { id: snap.id, ...snap.data() } : fallback;
+        let data = snap.exists() ? { id: snap.id, ...snap.data() } : null;
+        if (!data) {
+          const slugMatch = await getDocs(query(collection(db, "products"), where("slug", "==", id), limit(1)));
+          if (!slugMatch.empty) data = { id: slugMatch.docs[0].id, ...slugMatch.docs[0].data() };
+        }
+        // This is only needed before existing products have been migrated.
+        if (!data) {
+          const products = await getDocs(collection(db, "products"));
+          const { getProductSlug } = await import("@/lib/productUrl");
+          const match = products.docs
+            .map((item) => ({ id: item.id, ...item.data() }))
+            .find((item) => getProductSlug(item) === id);
+          data = match || sampleProducts.find((item) => item.id === id || item.slug === id);
+        }
         setProduct(data || null);
         if (data?.variants?.length) setVariant(data.variants[0]);
 
@@ -73,15 +85,15 @@ export default function ProductDetailPage() {
             const rSnap = await getDocs(q);
             const rProducts = rSnap.docs
               .map((d) => ({ id: d.id, ...d.data() }))
-              .filter((p) => p.id !== id);
+              .filter((p) => p.id !== data.id);
             setRelated(
               rProducts.length
                 ? rProducts.slice(0, 4)
-                : sampleProducts.filter((p) => p.category === data.category && p.id !== id).slice(0, 4)
+                : sampleProducts.filter((p) => p.category === data.category && p.id !== data.id).slice(0, 4)
             );
           } catch {
             setRelated(
-              sampleProducts.filter((p) => p.category === data?.category && p.id !== id).slice(0, 4)
+              sampleProducts.filter((p) => p.category === data?.category && p.id !== data?.id).slice(0, 4)
             );
           }
         }

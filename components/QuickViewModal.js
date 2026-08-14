@@ -6,6 +6,7 @@ import { FiX, FiShoppingBag } from "react-icons/fi";
 import { formatPrice } from "@/lib/utils";
 import RatingStars from "@/components/RatingStars";
 import ProductBadges, { getDiscountPercent } from "@/components/ProductBadges";
+import { getProductUrl } from "@/lib/productUrl";
 
 export default function QuickViewModal({ product, onClose, onAddToCart }) {
   if (!product) return null;
@@ -91,7 +92,7 @@ export default function QuickViewModal({ product, onClose, onAddToCart }) {
               {soldOut ? "Sold Out" : "Add to Bag"}
             </button>
             <Link
-              href={`/products/${product.id}`}
+              href={getProductUrl(product)}
               onClick={onClose}
               className="btn-outline text-center"
             >

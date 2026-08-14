@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebaseAdmin";
+import { getProductSlug } from "@/lib/productUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export async function GET() {
           doc.id,
           p.name,
           p.description || p.name,
-          `${siteUrl}/products/${doc.id}`,
+          `${siteUrl}/products/${encodeURIComponent(getProductSlug({ id: doc.id, ...p }))}`,
           p.images?.[0] || "",
           availability,
           `${price} INR`,

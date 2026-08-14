@@ -1,6 +1,6 @@
 import { getAdminDb } from "@/lib/firebaseAdmin";
 
-import { CATEGORIES } from "@/lib/categories";
+import { getProductSlug } from "@/lib/productUrl";
 
 const STATIC_PAGES = [
   ["", 1],
@@ -26,15 +26,6 @@ export default async function sitemap() {
     priority,
   }));
 
-  CATEGORIES.forEach((category) => {
-    entries.push({
-      url: `${siteUrl}/products?category=${encodeURIComponent(category.slug)}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    });
-  });
-
   try {
     const adminDb = getAdminDb();
     const [productsSnap, blogsSnap] = await Promise.all([
@@ -43,9 +34,11 @@ export default async function sitemap() {
     ]);
 
     productsSnap.forEach((doc) => {
+      const product = { id: doc.id, ...doc.data() };
+      if (product.status && product.status !== "active") return;
       entries.push({
-        url: `${siteUrl}/products/${doc.id}`,
-        lastModified: doc.data().updatedAt?.toDate?.() || doc.data().createdAt?.toDate?.() || new Date(),
+        url: `${siteUrl}/products/${encodeURIComponent(getProductSlug(product))}`,
+        lastModified: product.updatedAt?.toDate?.() || product.createdAt?.toDate?.() || new Date(),
         changeFrequency: "weekly",
         priority: 0.8,
       });

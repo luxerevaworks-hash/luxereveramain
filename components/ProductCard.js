@@ -12,6 +12,7 @@ import { formatPrice } from "@/lib/utils";
 import Logo from "@/components/Logo";
 import RatingStars from "@/components/RatingStars";
 import ProductBadges, { getDiscountPercent } from "@/components/ProductBadges";
+import { getProductUrl } from "@/lib/productUrl";
 import QuickViewModal from "@/components/QuickViewModal";
 import toast from "react-hot-toast";
 
@@ -61,7 +62,7 @@ export default function ProductCard({ product }) {
   return (
     <>
       <Link
-        href={`/products/${product.id}`}
+        href={getProductUrl(product)}
         className="group block bg-white rounded-lg overflow-hidden border border-gold/30 hover:shadow-lg transition-shadow"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

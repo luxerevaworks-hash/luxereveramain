@@ -6,14 +6,18 @@ import {
   addDoc,
   collection,
   doc,
+  getDocs,
+  query,
   serverTimestamp,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import { BADGE_OPTIONS } from "@/lib/badges";
+import { slugify } from "@/lib/utils";
 
 const CATEGORIES = ["earrings", "necklaces", "bracelets", "rings"];
 const STATUSES = ["active", "draft", "archived"];
@@ -140,8 +144,15 @@ export default function ProductForm({ initialData = null }) {
     e.preventDefault();
     setSaving(true);
     try {
+      const slug = slugify(form.name);
+      if (!slug) throw new Error("A product name is required to create its URL.");
+      const matchingSlug = await getDocs(query(collection(db, "products"), where("slug", "==", slug)));
+      if (matchingSlug.docs.some((item) => item.id !== initialData?.id)) {
+        throw new Error("Another product already uses this name. Use a unique product name.");
+      }
       const payload = {
         name: form.name,
+        slug,
         category: form.category,
         sku: form.sku,
         status: form.status,
