@@ -2,6 +2,10 @@ import { getAdminDb } from "@/lib/firebaseAdmin";
 
 import { getProductSlug } from "@/lib/productUrl";
 
+// Product data lives in Firestore, so generate this at request time rather
+// than freezing the sitemap from the last deployment build.
+export const dynamic = "force-dynamic";
+
 const STATIC_PAGES = [
   ["", 1],
   ["/products", 0.9],
@@ -35,7 +39,6 @@ export default async function sitemap() {
 
     productsSnap.forEach((doc) => {
       const product = { id: doc.id, ...doc.data() };
-      if (product.status && product.status !== "active") return;
       entries.push({
         url: `${siteUrl}/products/${encodeURIComponent(getProductSlug(product))}`,
         lastModified: product.updatedAt?.toDate?.() || product.createdAt?.toDate?.() || new Date(),
