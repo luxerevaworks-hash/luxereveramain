@@ -18,7 +18,7 @@ import ProductFaq from "@/components/ProductFaq";
 import LiveViewerBadge from "@/components/LiveViewerBadge";
 import ProductReviews from "@/components/ProductReviews";
 import toast from "react-hot-toast";
-import { FiShield, FiRefreshCw, FiTruck, FiStar, FiChevronRight } from "react-icons/fi";
+import { FiShield, FiRefreshCw, FiTruck, FiStar, FiChevronRight, FiChevronDown, FiBox, FiLayers, FiSettings } from "react-icons/fi";
 
 const FEATURES = [
   { icon: <FiTruck className="w-5 h-5" />, label: "Free Delivery", sub: "On all orders" },
@@ -26,6 +26,75 @@ const FEATURES = [
   { icon: <FiShield className="w-5 h-5" />, label: "1 Year Warranty", sub: "On Gold Plating" },
   { icon: <FiStar className="w-5 h-5" />, label: "Premium Finish", sub: "Long-lasting shine" },
 ];
+
+const SPECIFICATION_LABELS = {
+  brand: "Brand",
+  productName: "Product Name",
+  productType: "Product Type",
+  collection: "Collection",
+  material: "Material",
+  plating: "Plating",
+  finish: "Finish",
+  stoneType: "Stone Type",
+  stoneColour: "Stone Colour",
+  tarnishProtection: "Tarnish Protection",
+  waterResistance: "Water Resistance",
+  hypoallergenic: "Hypoallergenic",
+  colour: "Colour",
+  dimensions: "Dimensions",
+  weight: "Weight",
+  closureType: "Closure Type",
+  occasion: "Occasion",
+  gender: "Gender",
+  warranty: "Warranty",
+  countryOfOrigin: "Country of Origin",
+  manufacturer: "Manufacturer",
+  marketedBy: "Marketed / Sold By",
+};
+
+const PRODUCT_TYPE_BY_CATEGORY = {
+  earrings: "Earrings",
+  necklaces: "Necklace",
+  bracelets: "Bracelet",
+  rings: "Ring",
+};
+
+const SPECIFICATION_GROUPS = [
+  { title: "Product details", icon: FiBox, fields: ["brand", "productName", "productType", "collection", "gender"] },
+  { title: "Material & finish", icon: FiLayers, fields: ["material", "plating", "finish", "colour", "tarnishProtection"] },
+  { title: "Stone details", icon: FiStar, fields: ["stoneType", "stoneColour"] },
+  { title: "Size & closure", icon: FiSettings, fields: ["dimensions", "weight", "closureType", "occasion"] },
+  { title: "Care & warranty", icon: FiShield, fields: ["waterResistance", "hypoallergenic", "warranty", "countryOfOrigin", "manufacturer", "marketedBy", "careInstructions"] },
+];
+
+function getSpecifications(product) {
+  const saved = product.specifications || {};
+  return {
+    brand: saved.brand || "Luxereva",
+    productName: product.name,
+    productType: saved.productType || PRODUCT_TYPE_BY_CATEGORY[product.category] || "Not specified",
+    collection: saved.collection || "Not specified",
+    material: saved.material || "Not specified",
+    plating: saved.plating || "Not specified",
+    finish: saved.finish || "Not specified",
+    stoneType: saved.stoneType || "Not specified",
+    stoneColour: saved.stoneColour || "Not specified",
+    tarnishProtection: saved.tarnishProtection || "Anti-Tarnish",
+    waterResistance: saved.waterResistance || "Not specified",
+    hypoallergenic: saved.hypoallergenic || "Not specified",
+    colour: saved.colour || "Not specified",
+    dimensions: saved.dimensions || "Not specified",
+    weight: saved.weight || "Not specified",
+    closureType: saved.closureType || "Not specified",
+    occasion: saved.occasion || "Not specified",
+    gender: saved.gender || "Women",
+    warranty: saved.warranty || "1 Year",
+    countryOfOrigin: saved.countryOfOrigin || "India",
+    manufacturer: saved.manufacturer || "Not specified",
+    marketedBy: saved.marketedBy || "Luxereva",
+    careInstructions: saved.careInstructions || "Store dry, avoid direct contact with perfumes, chemicals and excessive moisture.",
+  };
+}
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -39,6 +108,8 @@ export default function ProductDetailPage() {
   const [qty, setQty] = useState(1);
   const [variant, setVariant] = useState(null);
   const [storeSettings, setStoreSettings] = useState(null);
+  const [openSpecification, setOpenSpecification] = useState(null);
+  const [showAllSpecifications, setShowAllSpecifications] = useState(false);
 
   useEffect(() => {
     async function loadSettings() {
@@ -157,6 +228,7 @@ export default function ProductDetailPage() {
   const hasTrackedStock = Number.isFinite(stock);
   const inStock = !hasTrackedStock || stock > 0;
   const lowStock = hasTrackedStock && inStock && stock <= 5;
+  const specifications = getSpecifications(product);
 
   return (
     <div className="bg-cream min-h-screen pb-28 md:pb-0">
@@ -257,6 +329,52 @@ export default function ProductDetailPage() {
           <p className="text-sm text-brown/80 mt-5 leading-relaxed">
             {product.description}
           </p>
+
+          <section className="mt-7 border-t border-gold/30 pt-6">
+            <h2 className="text-xs uppercase tracking-widest2 text-brown-dark mb-4">Product Specifications</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {SPECIFICATION_GROUPS.slice(0, showAllSpecifications ? SPECIFICATION_GROUPS.length : 4).map((group) => {
+                const Icon = group.icon;
+                const isOpen = openSpecification === group.title;
+                return (
+                  <div key={group.title} className="rounded-2xl border border-gold/20 bg-white overflow-hidden transition-shadow hover:shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setOpenSpecification(isOpen ? null : group.title)}
+                      className="w-full flex items-center gap-4 p-5 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="w-12 h-12 shrink-0 rounded-full bg-gold/10 text-[#93701e] flex items-center justify-center shadow-sm">
+                        <Icon className="w-5 h-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-base font-medium text-brown-dark">{group.title}</span>
+                        <span className="block mt-0.5 text-xs text-brown/60">{group.fields.length} details</span>
+                      </span>
+                      <FiChevronDown className={`w-5 h-5 text-brown/60 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {isOpen && (
+                      <dl className="px-5 pb-5 space-y-2 text-xs">
+                        {group.fields.map((key) => (
+                          <div key={key} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-3 border-t border-gold/15 pt-2">
+                            <dt className="text-brown/55">{SPECIFICATION_LABELS[key] || "Care Instructions"}</dt>
+                            <dd className="text-brown-dark text-right leading-relaxed">{specifications[key]}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAllSpecifications((visible) => !visible)}
+              className="mt-5 text-sm font-medium text-brown-dark hover:text-rosewood transition-colors"
+            >
+              {showAllSpecifications ? "See Less" : "See More"}
+            </button>
+          </section>
 
           {/* Variants */}
           {product.variants?.length > 0 && (

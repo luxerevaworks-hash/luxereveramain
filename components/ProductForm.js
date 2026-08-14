@@ -21,6 +21,54 @@ import { slugify } from "@/lib/utils";
 
 const CATEGORIES = ["earrings", "necklaces", "bracelets", "rings"];
 const STATUSES = ["active", "draft", "archived"];
+const DEFAULT_SPECIFICATIONS = {
+  brand: "Luxereva",
+  productType: "",
+  collection: "",
+  material: "",
+  plating: "",
+  finish: "",
+  stoneType: "",
+  stoneColour: "",
+  tarnishProtection: "Anti-Tarnish",
+  waterResistance: "",
+  hypoallergenic: "",
+  colour: "",
+  dimensions: "",
+  weight: "",
+  closureType: "",
+  occasion: "",
+  gender: "Women",
+  warranty: "1 Year",
+  countryOfOrigin: "India",
+  manufacturer: "",
+  marketedBy: "Luxereva",
+  careInstructions: "Store dry, avoid direct contact with perfumes, chemicals and excessive moisture.",
+};
+
+const SPECIFICATION_FIELDS = [
+  ["brand", "Brand", "Luxereva"],
+  ["productType", "Product Type", "Earrings, Necklace, Bracelet..."],
+  ["collection", "Collection", "Collection name"],
+  ["material", "Material", "Stainless Steel, Brass, Sterling Silver..."],
+  ["plating", "Plating", "18K Gold Plated, 22K Gold Plated..."],
+  ["finish", "Finish", "High-Polish Gold, Rhodium..."],
+  ["stoneType", "Stone Type", "Cubic Zirconia, Crystal, None..."],
+  ["stoneColour", "Stone Colour", "Clear, Champagne, Green..."],
+  ["tarnishProtection", "Tarnish Protection", "Anti-Tarnish"],
+  ["waterResistance", "Water Resistance", "Water-Resistant or Not Water-Resistant"],
+  ["hypoallergenic", "Hypoallergenic", "Yes, No, Where Applicable"],
+  ["colour", "Colour", "Gold, Silver, Rose Gold"],
+  ["dimensions", "Dimensions", "Length × Width"],
+  ["weight", "Weight", "e.g. 12 g"],
+  ["closureType", "Closure Type", "Push Back, Butterfly, Lobster Clasp..."],
+  ["occasion", "Occasion", "Daily Wear, Party Wear, Festive, Gifting"],
+  ["gender", "Gender", "Women"],
+  ["warranty", "Warranty", "1 Year"],
+  ["countryOfOrigin", "Country of Origin", "India"],
+  ["manufacturer", "Legal Manufacturer Name", "Actual legal manufacturer name", true],
+  ["marketedBy", "Marketed / Sold By", "Luxereva"],
+];
 
 export default function ProductForm({ initialData = null }) {
   const router = useRouter();
@@ -43,6 +91,7 @@ export default function ProductForm({ initialData = null }) {
     images: initialData?.images || [],
     videos: initialData?.videos || [],
     variants: initialData?.variants || [],
+    specifications: { ...DEFAULT_SPECIFICATIONS, ...(initialData?.specifications || {}) },
   });
   const [videoUrl, setVideoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -51,6 +100,14 @@ export default function ProductForm({ initialData = null }) {
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+  }
+
+  function handleSpecificationChange(e) {
+    const { name, value } = e.target;
+    setForm((f) => ({
+      ...f,
+      specifications: { ...f.specifications, [name]: value },
+    }));
   }
 
   async function uploadFiles(files, folder) {
@@ -170,6 +227,7 @@ export default function ProductForm({ initialData = null }) {
         images: form.images,
         videos: form.videos,
         variants: form.variants.filter((v) => v.name.trim()),
+        specifications: form.specifications,
       };
 
       if (isEdit) {
@@ -287,6 +345,38 @@ export default function ProductForm({ initialData = null }) {
         <div>
           <label className="text-xs uppercase tracking-widest2 text-brown-dark">Description</label>
           <textarea name="description" value={form.description} onChange={handleChange} rows={4} required className="input-field mt-1" />
+        </div>
+      </div>
+
+      <div className="bg-white border border-gold/30 rounded-lg p-5 space-y-4">
+        <div>
+          <h2 className="text-sm uppercase tracking-widest2 text-brown-dark">Product Specifications</h2>
+          <p className="text-[11px] text-brown/50 mt-1">These details are displayed on the product page. Enter the real legal manufacturer name; do not enter Luxereva unless it is the legal manufacturer.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {SPECIFICATION_FIELDS.map(([key, label, placeholder, required]) => (
+            <div key={key}>
+              <label className="text-xs uppercase tracking-widest2 text-brown-dark">{label}</label>
+              <input
+                name={key}
+                value={form.specifications[key] || ""}
+                onChange={handleSpecificationChange}
+                placeholder={placeholder}
+                required={required}
+                className="input-field mt-1"
+              />
+            </div>
+          ))}
+        </div>
+        <div>
+          <label className="text-xs uppercase tracking-widest2 text-brown-dark">Care Instructions</label>
+          <textarea
+            name="careInstructions"
+            value={form.specifications.careInstructions || ""}
+            onChange={handleSpecificationChange}
+            rows={3}
+            className="input-field mt-1"
+          />
         </div>
       </div>
 
