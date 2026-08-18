@@ -39,8 +39,8 @@ export default function BlogsPage() {
         <section className="container-page py-12 grid md:grid-cols-3 gap-6">
           {posts.map((post) => (
             <article key={post.id} className="bg-white border border-gold/30 rounded-lg overflow-hidden">
-              {post.image && (
-                <img src={post.image} alt={post.title} className="w-full h-40 object-cover" />
+              {(post.image || post.images?.[0]) && (
+                <img src={post.image || post.images[0]} alt={post.title} className="w-full h-40 object-cover" />
               )}
               <div className="p-6">
                 <p className="text-xs uppercase tracking-widest2 text-sage mb-4">

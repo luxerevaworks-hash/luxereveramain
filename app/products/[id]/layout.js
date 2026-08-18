@@ -4,6 +4,41 @@ import { getProductSlug } from "@/lib/productUrl";
 
 const siteUrl = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
 
+function toJsonLd(data) {
+  // Prevent product text from ever closing the script element.
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+function productSchema(product) {
+  const slug = getProductSlug(product);
+  const url = `${siteUrl}/products/${encodeURIComponent(slug)}`;
+  const price = Number(product.price);
+  const inStock = product.status !== "inactive" && product.status !== "draft" && (product.stock === undefined || product.stock > 0);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${url}#product`,
+    name: product.name,
+    url,
+    image: product.images?.filter(Boolean) || undefined,
+    description: product.description || `${product.name} by Luxereva.`,
+    sku: product.sku || undefined,
+    category: product.category ? `${product.category.charAt(0).toUpperCase()}${product.category.slice(1)}` : undefined,
+    brand: { "@type": "Brand", name: "Luxereva" },
+    offers: {
+      "@type": "Offer",
+      url,
+      priceCurrency: "INR",
+      // Prices in Firestore are stored in paise; Schema requires rupees.
+      price: Number.isFinite(price) ? (price / 100).toFixed(2) : undefined,
+      availability: `https://schema.org/${inStock ? "InStock" : "OutOfStock"}`,
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "Luxereva", url: siteUrl },
+    },
+  };
+}
+
 async function findProduct(identifier) {
   const db = getAdminDb();
   const byId = await db.collection("products").doc(identifier).get();
@@ -37,5 +72,15 @@ export default async function ProductLayout({ children, params }) {
     const canonicalSlug = getProductSlug(product);
     if (params.id !== canonicalSlug) redirect(`/products/${encodeURIComponent(canonicalSlug)}`);
   }
-  return children;
+  return (
+    <>
+      {children}
+      {product && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: toJsonLd(productSchema(product)) }}
+        />
+      )}
+    </>
+  );
 }

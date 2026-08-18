@@ -12,6 +12,16 @@ import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-RVZPZZSJSS";
+const SITE_URL = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
+  name: "Luxereva",
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.png`,
+};
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com"),
@@ -50,6 +60,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema).replace(/</g, "\\u003c") }}
+        />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"

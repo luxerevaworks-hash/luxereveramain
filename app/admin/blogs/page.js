@@ -24,7 +24,7 @@ export default function AdminBlogsPage() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: "", excerpt: "", content: "", image: "" });
+  const [form, setForm] = useState({ title: "", excerpt: "", content: "", image: "", productId: "", productName: "" });
 
   useEffect(() => {
     loadPosts();
@@ -73,10 +73,11 @@ export default function AdminBlogsPage() {
         excerpt: form.excerpt.trim(),
         content: form.content.trim(),
         image: form.image || "",
+        product: form.productId ? { id: form.productId.trim(), name: form.productName.trim() || "Featured product" } : null,
         createdAt: serverTimestamp(),
       });
       toast.success("Blog post added");
-      setForm({ title: "", excerpt: "", content: "", image: "" });
+      setForm({ title: "", excerpt: "", content: "", image: "", productId: "", productName: "" });
       loadPosts();
     } catch (err) {
       console.error(err);
@@ -112,6 +113,24 @@ export default function AdminBlogsPage() {
 
         <form onSubmit={addPost} className="bg-white border border-gold/30 rounded-lg p-5 space-y-4 mb-8">
           <h2 className="text-sm uppercase tracking-widest2 text-brown-dark">Add Blog Post</h2>
+          <div>
+            <label className="text-xs uppercase tracking-widest2 text-brown-dark">Featured Product ID (optional)</label>
+            <input
+              className="input-field mt-1"
+              value={form.productId}
+              onChange={(e) => setForm((f) => ({ ...f, productId: e.target.value }))}
+              placeholder="e.g. celeste-moon-layered-necklace"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-widest2 text-brown-dark">Featured Product Name</label>
+            <input
+              className="input-field mt-1"
+              value={form.productName}
+              onChange={(e) => setForm((f) => ({ ...f, productName: e.target.value }))}
+              placeholder="Shown in the shop card"
+            />
+          </div>
           <div>
             <label className="text-xs uppercase tracking-widest2 text-brown-dark">Title</label>
             <input

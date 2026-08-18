@@ -10,6 +10,7 @@
     "seed": "node scripts/seed.js",
     "seed:catalog": "node scripts/seedCatalog.js",
     "seed:drive-products": "node scripts/seedDriveProducts.js",
+    "seed:product-blogs": "node scripts/seedProductBlogs.js",
     "migrate:product-slugs": "node scripts/migrateProductSlugs.js",
     "upload:drive-product-images": "node scripts/uploadDriveProductImages.js"
   },
