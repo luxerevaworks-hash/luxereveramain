@@ -21,6 +21,44 @@ import HomeReviews from "@/components/HomeReviews";
 import { sampleProducts } from "@/lib/sampleProducts";
 import { CATEGORIES } from "@/lib/categories";
 
+const SITE_URL = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
+
+const homeSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Luxereva",
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon.png`,
+      description: "Luxereva creates thoughtfully designed jewellery for everyday elegance, meaningful gifting and special moments.",
+      sameAs: ["https://www.instagram.com/luxereva?igsh=OGdjMW1waGdqbmc2"],
+      contactPoint: {
+        "@type": "ContactPoint",
+        telephone: "+91-84213-18199",
+        contactType: "customer service",
+        availableLanguage: ["English", "Hindi"],
+      },
+    },
+    {
+      "@type": "JewelryStore",
+      "@id": `${SITE_URL}/#localbusiness`,
+      name: "Luxereva",
+      url: SITE_URL,
+      image: `${SITE_URL}/images/hero-photo.jpg`,
+      logo: `${SITE_URL}/icon.png`,
+      description: "Premium-looking, wearable jewellery designed for the modern woman's everyday moments.",
+      telephone: "+91-84213-18199",
+      email: "info@luxereva.com",
+      address: { "@type": "PostalAddress", addressCountry: "IN" },
+      areaServed: "IN",
+      priceRange: "₹₹",
+      parentOrganization: { "@id": `${SITE_URL}/#organization` },
+    },
+  ],
+};
+
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
@@ -98,6 +136,10 @@ export default function HomePage() {
 
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema).replace(/</g, "\\u003c") }}
+      />
       <HeroSlider slides={heroSlides} />
 
       <section className="container-page py-14">

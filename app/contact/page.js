@@ -33,6 +33,16 @@ export default function ContactPage() {
                 info@luxereva.com
               </a>
             </p>
+            <p>
+              <span className="font-semibold text-brown-dark">Customer care:</span>{" "}
+              <a href="tel:+918421318199" className="text-rosewood">+91 84213 18199</a>
+            </p>
+            <p>
+              <span className="font-semibold text-brown-dark">WhatsApp:</span>{" "}
+              <a href="https://wa.me/918421318199" target="_blank" rel="noreferrer" className="text-rosewood">
+                Chat with customer care
+              </a>
+            </p>
             <p><span className="font-semibold text-brown-dark">Hours:</span> Monday to Saturday, 10 AM to 6 PM</p>
             <p><span className="font-semibold text-brown-dark">Orders:</span> Use your account page to check order details.</p>
           </div>

@@ -10,6 +10,7 @@ import PresenceTracker from "@/components/PresenceTracker";
 import CartDrawer from "@/components/CartDrawer";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { FiMessageCircle } from "react-icons/fi";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-RVZPZZSJSS";
 const SITE_URL = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
@@ -80,6 +81,15 @@ export default function RootLayout({ children }) {
               <Navbar />
               <main className="min-h-[60vh]">{children}</main>
               <Footer />
+              <a
+                href="https://wa.me/918421318199?text=Hello%20Luxereva%2C%20I%20need%20help."
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Chat with Luxereva customer care on WhatsApp"
+                className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-brown-dark"
+              >
+                <FiMessageCircle className="h-7 w-7" aria-hidden="true" />
+              </a>
               <CartDrawer />
               <Toaster position="bottom-center" />
             </WishlistProvider>

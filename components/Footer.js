@@ -57,7 +57,7 @@ const FOOTER_SECTIONS = [
   {
     title: "Company",
     links: [
-      { label: "About Us", href: "/about-us" },
+      { label: "Our Story", href: "/about-us" },
       { label: "Blogs", href: "/blogs" },
       { label: "Terms & Conditions", href: "/terms-and-conditions" },
       { label: "Privacy Policy", href: "/privacy-policy" },
@@ -77,6 +77,7 @@ const FOOTER_SECTIONS = [
     title: "Get In Touch",
     links: [
       { label: "info@luxereva.com", href: "mailto:info@luxereva.com" },
+      { label: "Customer Care +91 84213 18199", href: "tel:+918421318199" },
       { label: "WhatsApp +91 84213 18199", href: "https://wa.me/918421318199" },
     ],
   },
