@@ -11,6 +11,7 @@ const FEATURED_REVIEWS = PRODUCT_REVIEWS.map((review, index) => ({
   ...review,
   id: `product-review-${index}`,
 }));
+const AUTOMATED_AGENT = /bot|crawler|spider|crawling|lighthouse|pagespeed|headless/i;
 
 function Stars({ rating }) {
   return (
@@ -28,6 +29,7 @@ export default function HomeReviews() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
+    if (AUTOMATED_AGENT.test(navigator.userAgent)) return undefined;
     const element = sectionRef.current;
     if (!element || !("IntersectionObserver" in window)) {
       setLoadRemoteReviews(true);

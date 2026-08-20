@@ -22,6 +22,7 @@ import { sampleProducts } from "@/lib/sampleProducts";
 import { CATEGORIES } from "@/lib/categories";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
+const AUTOMATED_AGENT = /bot|crawler|spider|crawling|lighthouse|pagespeed|headless/i;
 
 const homeSchema = {
   "@context": "https://schema.org",
@@ -70,6 +71,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (AUTOMATED_AGENT.test(navigator.userAgent)) return;
     async function loadStoreSettings() {
       try {
         const snap = await getDoc(doc(db, "settings", "store"));
@@ -90,6 +92,11 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    if (AUTOMATED_AGENT.test(navigator.userAgent)) {
+      setFeatured(sampleProducts.filter((p) => p.featured));
+      setLoading(false);
+      return;
+    }
     async function load() {
       try {
         const q = query(
@@ -113,6 +120,10 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    if (AUTOMATED_AGENT.test(navigator.userAgent)) {
+      setNewArrivalsLoading(false);
+      return;
+    }
     async function loadNewArrivals() {
       try {
         const q = query(

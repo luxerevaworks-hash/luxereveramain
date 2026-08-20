@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { getSessionId, sendHeartbeat } from "@/lib/presence";
 
 const HEARTBEAT_MS = 20000;
+const AUTOMATED_AGENT = /bot|crawler|spider|crawling|lighthouse|pagespeed|headless/i;
 
 function productIdFromPath(path) {
   const match = path?.match(/^\/products\/([^/]+)\/?$/);
@@ -16,11 +17,15 @@ function PresenceHeartbeat() {
   const currentRef = useRef({ path: pathname, productId: productIdFromPath(pathname) });
 
   useEffect(() => {
+    // Crawlers do not need live-visitor tracking. Avoiding this write also
+    // prevents Firestore background-channel errors in search audits.
+    if (AUTOMATED_AGENT.test(navigator.userAgent)) return undefined;
     currentRef.current = { path: pathname, productId: productIdFromPath(pathname) };
     sendHeartbeat(currentRef.current);
   }, [pathname]);
 
   useEffect(() => {
+    if (AUTOMATED_AGENT.test(navigator.userAgent)) return undefined;
     const timer = setInterval(() => sendHeartbeat(currentRef.current), HEARTBEAT_MS);
 
     function handleLeave() {

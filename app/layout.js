@@ -9,10 +9,8 @@ import MetaPixel from "@/components/MetaPixel";
 import PresenceTracker from "@/components/PresenceTracker";
 import CartDrawer from "@/components/CartDrawer";
 import { Toaster } from "react-hot-toast";
-import Script from "next/script";
 import { FiMessageCircle } from "react-icons/fi";
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-RVZPZZSJSS";
 const SITE_URL = (process.env.NEXT_PUBLIC_CANONICAL_URL || "https://luxereva.com").replace(/\/$/, "");
 
 const organizationSchema = {
@@ -65,13 +63,6 @@ export default function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema).replace(/</g, "\\u003c") }}
         />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA_MEASUREMENT_ID}');`}
-        </Script>
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
